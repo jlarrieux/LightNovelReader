@@ -1,60 +1,51 @@
 package com.example.ttsexample;
 
 
-import android.app.PendingIntent;
-import android.content.Context;
+import static com.example.ttsexample.SaverLoaderUtils.loadFromLocal;
+import static com.example.ttsexample.SaverLoaderUtils.loadNovelMapFromLocal;
+import static com.example.ttsexample.SaverLoaderUtils.saveLocally;
+
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.speech.tts.TextToSpeech;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.text.HtmlCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-import androidx.work.Constraints;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
+import androidx.fragment.app.DialogFragment;
 
+import com.example.ttsexample.DialogFragment.NovelDialogFragment;
+import com.example.ttsexample.DialogFragment.ParserDialogFragment;
 import com.example.ttsexample.databinding.ActivityMainBinding;
+import com.example.ttsexample.webparser.LightNovelReaderWebParser;
+import com.example.ttsexample.webparser.MTLReaderWebParser;
+import com.example.ttsexample.webparser.NovelTopWebParser;
+import com.example.ttsexample.webparser.RoyalRoadWebParser;
+import com.example.ttsexample.webparser.WebParser;
 
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -64,24 +55,24 @@ import okhttp3.Headers;
 
 public class MainActivity extends AppCompatActivity {
 
-
     private static final String CURRENT_LINK_FILE_NAME = "currentLinkFileName";
     private static final String NEXT_LINK_FILE_NAME = "nextLinkFileName";
-    private static final String SPONSORED_CONTENT = "Sponsored Content";
-    private static final String SPONSORED_CONTENT2 = "SPONSORED CONTENT";
-    private static final String FIND_AUTHORIZED = "Find authorized novels in Webnovel，faster updates, better experience，Please click for visiting.";
-    private static final String FIND_AUTHORIZED2 = "Find authorized novels in Webnovel，faster updates, better experience，Please click www.webnovel.com for visiting.";
+    private static final String NOVEL_MAP_FILE_NAME = "novelMapFileName";
+
+    private String test = "https://noveltop.net/novel/birth-of-the-demonic-sword/chapter-2227-2227-respect/";
 
     private ActivityMainBinding binding;
     private Button speakButton, nextButton;
     private EditText urlEditText;
     private EditText fullTextEditText;
     private StringBuffer currentLink= new StringBuffer("");
-    private static int REQUEST_CODE = 1981;
+    private Map<String, String> novelMap = new HashMap<>();
+
 
     TextToSpeech t1;
     StringBuffer temp;
     StringBuffer nextLink = new StringBuffer();
+    StringBuffer title = new StringBuffer();
     TtsUtteranceListener ttsUtteranceListener;
     ActivityResultLauncher<Intent> startForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
@@ -100,6 +91,30 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
         init();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = new MenuInflater(this);
+        inflater.inflate(R.menu.menu_overflow, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.parserList:
+                showParsers();
+                break;
+            case R.id.novelList:
+                showNovels();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        return true;
+    }
+
+    // Private methods
 
     private void init() {
         ttsUtteranceListener = new TtsUtteranceListener();
@@ -121,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
         speakButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                JeanniusLogger.log("BUTTON CLICK!!!!");
                 getTextFromWeb();
             }
         });
@@ -131,23 +145,25 @@ public class MainActivity extends AppCompatActivity {
                 executeNext();
             }
         });
-        urlEditText.setText(loadFromLocal(CURRENT_LINK_FILE_NAME));
-        nextLink = new StringBuffer(loadFromLocal(NEXT_LINK_FILE_NAME));
+        currentLink = new StringBuffer(loadFromLocal(CURRENT_LINK_FILE_NAME, getApplicationContext()));
+        urlEditText.setText(currentLink);
+        nextLink = new StringBuffer(loadFromLocal(NEXT_LINK_FILE_NAME, getApplicationContext()));
+        novelMap = loadNovelMapFromLocal(NOVEL_MAP_FILE_NAME, getApplicationContext());
     }
 
     private String getTextFromWeb() {
-        String url = urlEditText.getText().toString();
+        String url =  urlEditText.getText().toString();
+//        String url = test;
         StringBuffer result = new StringBuffer("");
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
             return result.toString();
         }
         if (!isValidURL(url)) {
-            toastUser("Not a valid url");
+            JeanniusLogger.log("NOT VALID", url);
+            toastUser(String.format("%s is not a valid URL", url));
             return result.toString();
         }
-
-        String baseurl = new URL(url);
 
         Request request = new Request.Builder().url(url).build();
         CallBackFuture future = new CallBackFuture();
@@ -163,16 +179,47 @@ public class MainActivity extends AppCompatActivity {
                 }
                 StringBuffer value = new StringBuffer(responseBody.string());
                 Document doc = Jsoup.parse(value.toString());
-                List<Element> elements = doc.getElementsByClass("cm-button");
+                doc.select("script").remove();
+
                 currentLink = new StringBuffer(url);
-                saveLocally(url, CURRENT_LINK_FILE_NAME);
-                saveLocally(nextLink.toString(), NEXT_LINK_FILE_NAME);
-                setNextLink(elements);
-                List<Element> textBase = doc.getElementsByClass("text-base");
-                temp = new StringBuffer(HtmlCompat.fromHtml(textBase.get(0).toString(), HtmlCompat.FROM_HTML_MODE_LEGACY));
-                temp = removeUnwanted(temp);
+                saveLocally(url, CURRENT_LINK_FILE_NAME, getApplicationContext());
+                String host = getUrlHost(url);
+                WebParser webParser;
+                switch(host) {
+                    case WebParser.LIGHT_NOVEL_READER:
+                        webParser = new LightNovelReaderWebParser();
+                        break;
+                    case WebParser.ROYAL_ROAD:
+                        webParser = new RoyalRoadWebParser(host);
+                        break;
+                    case WebParser.MLT_READER:
+                        webParser = new MTLReaderWebParser();
+                        break;
+                    case WebParser.NOVEL_TOP:
+                        webParser = new NovelTopWebParser();
+                        break;
+                    default:
+                        String message = String.format("No Jeannius parser found for url: %s",host);
+                        toastUser(message);
+                        throw new Exception(message);
+                }
+                nextLink = webParser.getNextLink(doc);
+                if(nextLink != null){
+                    saveLocally(nextLink.toString(), NEXT_LINK_FILE_NAME, getApplicationContext());
+                }
+                title = webParser.getTitle(doc);
+                if(!title.toString().isEmpty()) {
+                    saveTitleCurrentLink(title.toString(), currentLink.toString());
+                }
+
+                System.out.println(doc);
+                System.out.println("\n\n\n");
+                temp = webParser.parse(doc);
+                System.out.println(temp);
                 fullTextEditText.setText(temp.toString());
+
                 Intent callIntent = new Intent();
+                callIntent.setPackage("com.hyperionics.avar");
                 callIntent.setAction(Intent.ACTION_SEND);
                 callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
                 callIntent.putExtra(Intent.EXTRA_TEXT, temp.toString());
@@ -180,8 +227,9 @@ public class MainActivity extends AppCompatActivity {
 
                 startForResult.launch(callIntent, ActivityOptionsCompat.makeTaskLaunchBehind());
 
-
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         } catch (ExecutionException e) {
@@ -192,43 +240,27 @@ public class MainActivity extends AppCompatActivity {
         return result.toString();
     }
 
-    private void saveLocally(String value, String filename){
-        try (FileOutputStream fos = getApplicationContext().openFileOutput(filename, Context.MODE_PRIVATE)) {
-            fos.write(value.getBytes(StandardCharsets.UTF_8));
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private StringBuilder loadFromLocal(String filename){
-        try (FileInputStream fis = getApplicationContext().openFileInput(CURRENT_LINK_FILE_NAME); InputStreamReader inputStreamReader = new InputStreamReader(fis, StandardCharsets.UTF_8); BufferedReader reader = new BufferedReader(inputStreamReader)) {
-            StringBuilder stringBuilder = new StringBuilder(reader.readLine());
-            JeanniusLogger.log(stringBuilder.toString());
-            return stringBuilder;
-
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-        return new StringBuilder("");
-    }
-
     private void toastUser(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    private StringBuffer removeUnwanted(StringBuffer temp) {
-        temp = new StringBuffer(temp.toString().replace(SPONSORED_CONTENT, ""));
-        temp = new StringBuffer(temp.toString().replace(SPONSORED_CONTENT2, ""));
-        temp = new StringBuffer(temp.toString().replace(FIND_AUTHORIZED, ""));
-        temp = new StringBuffer(temp.toString().replace(FIND_AUTHORIZED2, ""));
-        return temp;
+    private String getUrlHost(String red){
+        try {
+            URL url = new URL(red);
+            return url.getHost();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            toastUser("error while getting baseurl");
+        }
+        return "";
     }
 
     private void executeNext() {
-        if (nextLink.length() == 0) {
+        if (nextLink == null || nextLink.length() == 0) {
             toastUser("No next link");
         } else {
             urlEditText.setText(nextLink.toString());
+            JeanniusLogger.log(nextLink.toString());
             getTextFromWeb();
         }
     }
@@ -242,17 +274,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setNextLink(List<Element> elements) {
-        for (Element element : elements) {
-            StringBuffer text = new StringBuffer(element.text());
-            if (text.toString().contains("NEXT")) {
-                nextLink = new StringBuffer(element.attr("href"));
-                break;
-            }
-        }
+    private void showParsers(){
+        DialogFragment newFragment = new ParserDialogFragment();
+        newFragment.show(getSupportFragmentManager(), "Parsers");
     }
 
+    private void showNovels(){
+        DialogFragment newFragment = new NovelDialogFragment(NOVEL_MAP_FILE_NAME, urlEditText, fullTextEditText);
+        newFragment.show(getSupportFragmentManager(), "Novels");
+    }
 
+    private void saveTitleCurrentLink(String title, String currentLink){
+        novelMap.put(title, currentLink);
+        saveLocally(novelMap, NOVEL_MAP_FILE_NAME, getApplicationContext());
+    }
 
 }
 
