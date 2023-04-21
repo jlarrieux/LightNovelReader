@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Headers responseHeaders = response.headers();
                 for (int i = 0, size = responseHeaders.size(); i < size; i++) {
-                    System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
+                    JeanniusLogger.log(responseHeaders.name(i) + ": " + responseHeaders.value(i));
                 }
                 StringBuffer value = new StringBuffer(responseBody.string());
                 Document doc = Jsoup.parse(value.toString());
@@ -220,29 +220,31 @@ public class MainActivity extends AppCompatActivity {
                 }
                 nextLink = webParser.getNextLink(doc);
                 if(nextLink != null){
+                    JeanniusLogger.log("Jeannius next link not empty: "+ nextLink);
                     saveLocally(nextLink.toString(), NEXT_LINK_FILE_NAME, getApplicationContext());
                 } else {
-                    System.out.println("jeannius!!! nextlink is empty");
+                    JeanniusLogger.log("jeannius!!! nextlink is empty");
                 }
 
                 previousLink = webParser.getPreviousLink(doc);
                 if(previousLink != null && !previousLink.toString().isEmpty()){
+                    JeanniusLogger.log("Jeannius previous link not empty: "+ previousLink);
                     saveLocally(previousLink.toString(), PREVIOUS_LINK_FILE_NAME, getApplicationContext());
                 } else {
-                    System.out.println("jeannius!!! previous link is empty");
+                    JeanniusLogger.log("jeannius!!! previous link is empty");
                 }
 
                 title = webParser.getTitle(doc);
                 if(!title.toString().isEmpty()) {
                     saveTitleCurrentLink(title.toString(), currentLink.toString());
                 } else {
-                    System.out.println("jeannius!!! title is empty");
+                    JeanniusLogger.log("jeannius!!! title is empty");
                 }
 
                 System.out.println(doc);
-                System.out.println("\n\n\n");
+                JeanniusLogger.log("\n\n\n");
                 temp = webParser.parseDocument(doc);
-                System.out.println(temp);
+                JeanniusLogger.log(temp);
                 fullTextEditText.setText(temp.toString());
 
                 Intent callIntent = new Intent();

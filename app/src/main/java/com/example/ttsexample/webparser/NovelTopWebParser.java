@@ -10,19 +10,17 @@ import java.util.List;
 public class NovelTopWebParser extends WebParser{
     @Override
     public StringBuffer getNextLink(Document doc) {
-        JeanniusLogger.log("parsed", doc.toString());
-        try {
-            Element a = doc.getElementsByClass("nav-next").first().selectFirst("a");
-            NexLink = new StringBuffer(a.attr("href"));
-        } catch (NullPointerException nullPointerException){
-
-        }
-        return NexLink;
+        return linkSeeker(doc, "nav-next");
     }
 
     @Override
     public StringBuffer getPreviousLink(Document doc) {
-        return new StringBuffer("");
+        return linkSeeker(doc, "nav-previous");
+    }
+
+    protected StringBuffer linkSeeker(Document doc, String keyword) {
+        Element element = doc.getElementsByClass(keyword).first().selectFirst("a");
+        return new StringBuffer(element.attr("href"));
     }
 
     @Override
@@ -34,7 +32,8 @@ public class NovelTopWebParser extends WebParser{
     @Override
     public StringBuffer getTitle(Document doc) throws Exception {
         String meta = doc.select("link[rel=canonical]").get(0).attr("href");
-        JeanniusLogger.log("jeannius titlered: ", meta);
-        return new StringBuffer("");
+        StringBuffer result = parseMetaDescription(meta, WebParser.NOVEL_TOP + "/novel");
+        JeanniusLogger.log("potential title: ", result.toString());
+        return result;
     }
 }
