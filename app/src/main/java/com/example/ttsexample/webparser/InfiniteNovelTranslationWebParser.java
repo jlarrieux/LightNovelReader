@@ -21,18 +21,17 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
 
     @Override
     public StringBuffer getNextLink(Document doc) {
-        List<Element> elements = doc.select("p a");
-        return linkSeeker(elements, "Next");
+        return linkSeeker(doc, "Next");
     }
 
     @Override
     public StringBuffer getPreviousLink(Document doc) {
-        List<Element> elements = doc.select("p a");
-        return linkSeeker(elements, "Previous");
+        return linkSeeker(doc, "Previous");
     }
 
 
-    private StringBuffer linkSeeker(List<Element> elements, String keyWord) {
+    protected StringBuffer linkSeeker(Document doc, String keyWord) {
+        List<Element> elements = doc.select("p a");
         StringBuffer result = new StringBuffer("");
         for(Element element : elements) {
             StringBuffer text = new StringBuffer(element.text());

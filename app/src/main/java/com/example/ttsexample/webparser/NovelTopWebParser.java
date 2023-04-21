@@ -18,6 +18,7 @@ public class NovelTopWebParser extends WebParser{
         return linkSeeker(doc, "nav-previous");
     }
 
+    @Override
     protected StringBuffer linkSeeker(Document doc, String keyword) {
         Element element = doc.getElementsByClass(keyword).first().selectFirst("a");
         return new StringBuffer(element.attr("href"));

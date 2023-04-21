@@ -60,6 +60,8 @@ public abstract class WebParser {
 
     public abstract StringBuffer getPreviousLink(Document doc);
 
+    protected abstract StringBuffer linkSeeker(Document doc, String keyWord);
+
     public StringBuffer getTitle(Document doc) throws Exception {
         StringBuffer result = new StringBuffer();
         Element title = doc.selectFirst(TITLE_CONTENT_TAG);
