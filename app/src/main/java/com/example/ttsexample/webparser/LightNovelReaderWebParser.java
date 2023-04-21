@@ -42,4 +42,9 @@ public class LightNovelReaderWebParser extends WebParser {
     public StringBuffer getPreviousLink(Document doc) {
         return new StringBuffer("");
     }
+
+    @Override
+    protected StringBuffer linkSeeker(Document doc, String keyWord) {
+        return null;
+    }
 }

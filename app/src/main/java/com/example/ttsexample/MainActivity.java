@@ -236,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
 
                 title = webParser.getTitle(doc);
                 if(!title.toString().isEmpty()) {
+                    JeanniusLogger.log("Jeannius title not empty: "+ title);
                     saveTitleCurrentLink(title.toString(), currentLink.toString());
                 } else {
                     JeanniusLogger.log("jeannius!!! title is empty");

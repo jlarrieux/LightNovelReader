@@ -16,6 +16,7 @@ public abstract class WebParser {
     public static final String MLT_READER = "mtlreader.com";
     public static final String NOVEL_TOP = "noveltop.net";
     public static final String INFINITE_TRANSLATIONS = "infinitenoveltranslations.net";
+    public static final String DEFAULT_DELIMITER = "/";
     public StringBuilder title = new StringBuilder();
 
     protected List<String> unwanteds = new ArrayList<>();
@@ -41,19 +42,23 @@ public abstract class WebParser {
         return text;
     }
 
-    protected StringBuffer parseMetaDescription(String metaDescription, String patternPrefix) throws Exception {
-        Pattern pattern = Pattern.compile(patternPrefix + "/");
+    protected StringBuffer parseMetaDescription(String metaDescription, String patternPrefix, String stopper) throws Exception {
+        Pattern pattern = Pattern.compile(patternPrefix + DEFAULT_DELIMITER);
         Matcher matcher = pattern.matcher(metaDescription);
         StringBuffer result = new StringBuffer();
 
         if(matcher.find()){
             String rest = metaDescription.substring(matcher.end());
-            String rawTitle = rest.substring(0, rest.indexOf("/"));
-            result.append(rawTitle.replace("-", " "));
+            result = parseRawTitle(rest, stopper);
         } else {
             throw new Exception("Unable to parse metadescription: "+ metaDescription);
         }
         return result;
+    }
+
+    protected StringBuffer parseRawTitle(String rest, String stopper) {
+        String rawTitle = rest.substring(0, rest.indexOf(stopper));
+        return new StringBuffer(rawTitle.replace("-",  " "));
     }
 
     public abstract StringBuffer getNextLink(Document doc);

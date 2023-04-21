@@ -33,7 +33,7 @@ public class NovelTopWebParser extends WebParser{
     @Override
     public StringBuffer getTitle(Document doc) throws Exception {
         String meta = doc.select("link[rel=canonical]").get(0).attr("href");
-        StringBuffer result = parseMetaDescription(meta, WebParser.NOVEL_TOP + "/novel");
+        StringBuffer result = parseMetaDescription(meta, WebParser.NOVEL_TOP + "/novel", WebParser.DEFAULT_DELIMITER);
         JeanniusLogger.log("potential title: ", result.toString());
         return result;
     }
