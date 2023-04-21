@@ -8,6 +8,10 @@ public class JeanniusLogger {
     public static void log(String message){
         Log.i(PREFIX_TAG, message);
     }
+
+    public static void log(StringBuffer message) {
+        Log.i(PREFIX_TAG, message.toString());
+    }
     public static void log(String tag, String message){
         Log.i(PREFIX_TAG + "-" +tag, message);
     }
