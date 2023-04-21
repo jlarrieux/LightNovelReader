@@ -5,8 +5,6 @@ import org.jsoup.nodes.Element;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class InfiniteNovelTranslationWebParser extends WebParser {
     private static final String THIS_CHAPTER_IS = "This chapter is the edited version of another translation. You can find the original chapter post here.";
@@ -24,18 +22,17 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
     @Override
     public StringBuffer getNextLink(Document doc) {
         List<Element> elements = doc.select("p a");
-        NexLink = new StringBuffer(substitute(elements, "Next"));
-        return NexLink;
+        return linkSeeker(elements, "Next");
     }
 
     @Override
     public StringBuffer getPreviousLink(Document doc) {
         List<Element> elements = doc.select("p a");
-        PreviousLink = new StringBuffer(substitute(elements, "Previous"));
-        return PreviousLink;
+        return linkSeeker(elements, "Previous");
     }
 
-    private StringBuffer substitute(List<Element> elements, String keyWord) {
+
+    private StringBuffer linkSeeker(List<Element> elements, String keyWord) {
         StringBuffer result = new StringBuffer("");
         for(Element element : elements) {
             StringBuffer text = new StringBuffer(element.text());
