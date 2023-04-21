@@ -46,14 +46,24 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/previous"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:text="PREVIOUS"
+                android:textSize="12sp" />
+
+            <Button
                 android:id="@+id/button"
-                android:layout_width="283dp"
+                android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:width="@android:dimen/app_icon_size"
                 android:maxWidth="@android:dimen/app_icon_size"
                 android:minWidth="@dimen/fab_margin"
                 android:text="Read @ loud"
+                android:textSize="12sp"
                 app:iconPadding="0dp" />
 
             <Button
@@ -62,7 +72,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_weight="1"
-                android:text="NEXT" />
+                android:text="NEXT"
+                android:textSize="12sp" />
 
         </LinearLayout>
 

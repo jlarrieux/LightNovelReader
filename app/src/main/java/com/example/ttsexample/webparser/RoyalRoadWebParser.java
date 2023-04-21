@@ -34,6 +34,11 @@ public class RoyalRoadWebParser extends WebParser{
     }
 
     @Override
+    public StringBuffer getPreviousLink(Document doc) {
+        return new StringBuffer("");
+    }
+
+    @Override
     public StringBuffer getTitle(Document doc) {
         Element formElement = doc.getElementsByClass("follow-author-form").get(0);
         Element inputElement = formElement.getElementsByTag("input").get(0);

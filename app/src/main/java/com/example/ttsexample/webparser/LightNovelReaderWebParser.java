@@ -37,4 +37,9 @@ public class LightNovelReaderWebParser extends WebParser {
         }
         return NexLink;
     }
+
+    @Override
+    public StringBuffer getPreviousLink(Document doc) {
+        return new StringBuffer("");
+    }
 }

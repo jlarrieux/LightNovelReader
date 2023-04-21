@@ -27,6 +27,7 @@ import androidx.fragment.app.DialogFragment;
 import com.example.ttsexample.DialogFragment.NovelDialogFragment;
 import com.example.ttsexample.DialogFragment.ParserDialogFragment;
 import com.example.ttsexample.databinding.ActivityMainBinding;
+import com.example.ttsexample.webparser.InfiniteNovelTranslationWebParser;
 import com.example.ttsexample.webparser.LightNovelReaderWebParser;
 import com.example.ttsexample.webparser.MTLReaderWebParser;
 import com.example.ttsexample.webparser.NovelTopWebParser;
@@ -57,12 +58,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String CURRENT_LINK_FILE_NAME = "currentLinkFileName";
     private static final String NEXT_LINK_FILE_NAME = "nextLinkFileName";
+    private static final String PREVIOUS_LINK_FILE_NAME = "previousLinkFileName";
     private static final String NOVEL_MAP_FILE_NAME = "novelMapFileName";
 
     private String test = "https://noveltop.net/novel/birth-of-the-demonic-sword/chapter-2227-2227-respect/";
 
     private ActivityMainBinding binding;
-    private Button speakButton, nextButton;
+    private Button speakButton, nextButton, previousButton;
     private EditText urlEditText;
     private EditText fullTextEditText;
     private StringBuffer currentLink= new StringBuffer("");
@@ -72,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     TextToSpeech t1;
     StringBuffer temp;
     StringBuffer nextLink = new StringBuffer();
+    StringBuffer previousLink =  new StringBuffer();
     StringBuffer title = new StringBuffer();
     TtsUtteranceListener ttsUtteranceListener;
     ActivityResultLauncher<Intent> startForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -122,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         fullTextEditText = findViewById(R.id.fullText);
         speakButton = findViewById(R.id.button);
         nextButton = findViewById(R.id.next);
+        previousButton = findViewById(R.id.previous);
         t1 = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -145,9 +149,17 @@ public class MainActivity extends AppCompatActivity {
                 executeNext();
             }
         });
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                executePrevious();
+            }
+        });
+
         currentLink = new StringBuffer(loadFromLocal(CURRENT_LINK_FILE_NAME, getApplicationContext()));
         urlEditText.setText(currentLink);
         nextLink = new StringBuffer(loadFromLocal(NEXT_LINK_FILE_NAME, getApplicationContext()));
+        previousLink = new StringBuffer(loadFromLocal(PREVIOUS_LINK_FILE_NAME, getApplicationContext()));
         novelMap = loadNovelMapFromLocal(NOVEL_MAP_FILE_NAME, getApplicationContext());
     }
 
@@ -198,6 +210,9 @@ public class MainActivity extends AppCompatActivity {
                     case WebParser.NOVEL_TOP:
                         webParser = new NovelTopWebParser();
                         break;
+                    case WebParser.INFINITE_TRANSLATIONS:
+                        webParser = new InfiniteNovelTranslationWebParser();
+                        break;
                     default:
                         String message = String.format("No Jeannius parser found for url: %s",host);
                         toastUser(message);
@@ -206,15 +221,27 @@ public class MainActivity extends AppCompatActivity {
                 nextLink = webParser.getNextLink(doc);
                 if(nextLink != null){
                     saveLocally(nextLink.toString(), NEXT_LINK_FILE_NAME, getApplicationContext());
+                } else {
+                    System.out.println("jeannius!!! nextlink is empty");
                 }
+
+                previousLink = webParser.getPreviousLink(doc);
+                if(previousLink != null && !previousLink.toString().isEmpty()){
+                    saveLocally(previousLink.toString(), PREVIOUS_LINK_FILE_NAME, getApplicationContext());
+                } else {
+                    System.out.println("jeannius!!! previous link is empty");
+                }
+
                 title = webParser.getTitle(doc);
                 if(!title.toString().isEmpty()) {
                     saveTitleCurrentLink(title.toString(), currentLink.toString());
+                } else {
+                    System.out.println("jeannius!!! title is empty");
                 }
 
                 System.out.println(doc);
                 System.out.println("\n\n\n");
-                temp = webParser.parse(doc);
+                temp = webParser.parseDocument(doc);
                 System.out.println(temp);
                 fullTextEditText.setText(temp.toString());
 
@@ -261,6 +288,16 @@ public class MainActivity extends AppCompatActivity {
         } else {
             urlEditText.setText(nextLink.toString());
             JeanniusLogger.log(nextLink.toString());
+            getTextFromWeb();
+        }
+    }
+
+    private void executePrevious(){
+        if(previousLink == null || previousLink.length() == 0) {
+            toastUser("No previous link");
+        } else {
+            urlEditText.setText(previousLink.toString());
+            JeanniusLogger.log(previousLink.toString());
             getTextFromWeb();
         }
     }

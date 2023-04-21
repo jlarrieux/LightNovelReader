@@ -27,4 +27,9 @@ public class MTLReaderWebParser extends WebParser{
         JeanniusLogger.log("Found next", NexLink.toString());
         return NexLink;
     }
+
+    @Override
+    public StringBuffer getPreviousLink(Document doc) {
+        return new StringBuffer("");
+    }
 }

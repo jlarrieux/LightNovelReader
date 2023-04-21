@@ -21,13 +21,18 @@ public class NovelTopWebParser extends WebParser{
     }
 
     @Override
-    public StringBuffer parse(Document doc) {
+    public StringBuffer getPreviousLink(Document doc) {
+        return new StringBuffer("");
+    }
+
+    @Override
+    public StringBuffer parseDocument(Document doc) {
         List<Element> textbase = doc.getElementsByClass("entry-content");
         return this.handleParsing(textbase);
     }
 
     @Override
-    public StringBuffer getTitle(Document doc) {
+    public StringBuffer getTitle(Document doc) throws Exception {
         return super.getTitle(doc);
     }
 }

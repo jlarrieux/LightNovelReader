@@ -13,14 +13,15 @@ public abstract class WebParser {
     public static final String ROYAL_ROAD = "www.royalroad.com";
     public static final String MLT_READER = "mtlreader.com";
     public static final String NOVEL_TOP = "noveltop.net";
+    public static final String INFINITE_TRANSLATIONS = "infinitenoveltranslations.net";
     public StringBuilder title = new StringBuilder();
 
     protected List<String> unwanteds = new ArrayList<>();
     protected String CHAPTER_CONTENT_CLASS = "chapter-content" ;
-    protected StringBuffer NexLink;
+    protected StringBuffer NexLink, PreviousLink;
     protected String TITLE_CONTENT_TAG = "title";
 
-    public StringBuffer parse(Document doc) {
+    public StringBuffer parseDocument(Document doc) {
         List<Element> textBase = doc.getElementsByClass(CHAPTER_CONTENT_CLASS);
         return this.handleParsing(textBase);
     }
@@ -40,7 +41,9 @@ public abstract class WebParser {
 
     public abstract StringBuffer getNextLink(Document doc);
 
-    public StringBuffer getTitle(Document doc) {
+    public abstract StringBuffer getPreviousLink(Document doc);
+
+    public StringBuffer getTitle(Document doc) throws Exception {
         StringBuffer result = new StringBuffer();
         Element title = doc.selectFirst(TITLE_CONTENT_TAG);
         if(title != null) {
@@ -50,7 +53,7 @@ public abstract class WebParser {
     }
 
     public static CharSequence[] getParserList(){
-        return List.of(LIGHT_NOVEL_READER, ROYAL_ROAD, MLT_READER, NOVEL_TOP).toArray(new CharSequence[0]);
+        return List.of(LIGHT_NOVEL_READER, ROYAL_ROAD, MLT_READER, NOVEL_TOP, INFINITE_TRANSLATIONS).toArray(new CharSequence[0]);
     }
 
 }
