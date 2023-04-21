@@ -50,23 +50,9 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
     @Override
     public StringBuffer getTitle(Document doc) throws Exception {
         String metaDescription = doc.select("meta[name=description]").get(0).attr("content");
-        return parseMetaDescription(metaDescription);
+        return parseMetaDescription(metaDescription , WebParser.INFINITE_TRANSLATIONS);
     }
 
-    private StringBuffer parseMetaDescription(String metaDescription) throws Exception {
-        Pattern pattern = Pattern.compile(WebParser.INFINITE_TRANSLATIONS + "/");
-        Matcher matcher = pattern.matcher(metaDescription);
-        StringBuffer result = new StringBuffer();
-
-        if(matcher.find()){
-            String rest = metaDescription.substring(matcher.end());
-            String rawTitle = rest.substring(0, rest.indexOf("/"));
-            result.append(rawTitle.replace("-", " "));
-        } else {
-            throw new Exception("Unable to parse metadescription: "+ metaDescription);
-        }
-        return result;
-    }
 
     @Override
     public StringBuffer parseDocument(Document doc) {

@@ -4,6 +4,8 @@ import androidx.core.text.HtmlCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,6 +39,21 @@ public abstract class WebParser {
             text = new StringBuffer(text.toString().replace(unwant, ""));
         }
         return text;
+    }
+
+    protected StringBuffer parseMetaDescription(String metaDescription, String patternPrefix) throws Exception {
+        Pattern pattern = Pattern.compile(patternPrefix + "/");
+        Matcher matcher = pattern.matcher(metaDescription);
+        StringBuffer result = new StringBuffer();
+
+        if(matcher.find()){
+            String rest = metaDescription.substring(matcher.end());
+            String rawTitle = rest.substring(0, rest.indexOf("/"));
+            result.append(rawTitle.replace("-", " "));
+        } else {
+            throw new Exception("Unable to parse metadescription: "+ metaDescription);
+        }
+        return result;
     }
 
     public abstract StringBuffer getNextLink(Document doc);
