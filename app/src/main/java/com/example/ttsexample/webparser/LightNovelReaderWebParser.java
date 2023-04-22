@@ -2,6 +2,8 @@ package com.example.ttsexample.webparser;
 
 import androidx.core.text.HtmlCompat;
 
+import com.example.ttsexample.JeanniusLogger;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,25 +28,32 @@ public class LightNovelReaderWebParser extends WebParser {
 
     @Override
     public StringBuffer getNextLink(Document doc) {
-        List<Element> elements = doc.getElementsByClass("cm-button");
-        NexLink = new StringBuffer("");
-        for (Element element : elements) {
-            StringBuffer text = new StringBuffer(element.text());
-            if (text.toString().contains("NEXT")) {
-                NexLink = new StringBuffer(element.attr("href"));
-                break;
-            }
-        }
-        return NexLink;
+        return linkSeeker(doc, "NEXT");
     }
 
     @Override
     public StringBuffer getPreviousLink(Document doc) {
-        return new StringBuffer("");
+        return linkSeeker(doc, "PREVIOUS");
     }
 
     @Override
     protected StringBuffer linkSeeker(Document doc, String keyWord) {
-        return null;
+        StringBuffer result = new StringBuffer();
+        List<Element> elements = doc.getElementsByClass("cm-button");
+        for (Element element : elements) {
+            StringBuffer text = new StringBuffer(element.text());
+            if (text.toString().contains(keyWord)) {
+                result = new StringBuffer(element.attr("href"));
+                break;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public StringBuffer getTitle(Document doc) throws Exception {
+        String metaLink = doc.select("link[rel=alternate]").get(0).attr("href");
+        StringBuffer result = parseMetaDescription(metaLink, WebParser.LIGHT_NOVEL_READER2, WebParser.DEFAULT_DELIMITER);
+        return result;
     }
 }

@@ -199,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 WebParser webParser;
                 switch(host) {
                     case WebParser.LIGHT_NOVEL_READER:
+                    case WebParser.LIGHT_NOVEL_READER2:
                         webParser = new LightNovelReaderWebParser();
                         break;
                     case WebParser.ROYAL_ROAD:

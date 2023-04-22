@@ -12,6 +12,7 @@ import org.jsoup.nodes.Element;
 
 public abstract class WebParser {
     public static final String LIGHT_NOVEL_READER = "lightnovelreader.me";
+    public static final String LIGHT_NOVEL_READER2 = "lnreader.org";
     public static final String ROYAL_ROAD = "www.royalroad.com";
     public static final String MLT_READER = "mtlreader.com";
     public static final String NOVEL_TOP = "noveltop.net";
@@ -21,7 +22,6 @@ public abstract class WebParser {
 
     protected List<String> unwanteds = new ArrayList<>();
     protected String CHAPTER_CONTENT_CLASS = "chapter-content" ;
-    protected StringBuffer NexLink, PreviousLink;
     protected String TITLE_CONTENT_TAG = "title";
 
     public StringBuffer parseDocument(Document doc) {

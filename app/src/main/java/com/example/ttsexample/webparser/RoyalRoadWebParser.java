@@ -29,12 +29,10 @@ public class RoyalRoadWebParser extends WebParser{
     @Override
     protected StringBuffer linkSeeker(Document doc, String keyWord) {
         List<Element> elements = doc.getElementsByClass("btn-primary");
-        NexLink = new StringBuffer("");
         StringBuffer result = new StringBuffer();
         for (Element element : elements) {
             StringBuffer text = new StringBuffer(element.text());
             if (text.toString().contains(keyWord) && element.hasAttr("href")) {
-                NexLink = new StringBuffer("https://"+host);
                 result = new StringBuffer("https://"+host);
                 result.append(element.attr("href"));
                 break;
