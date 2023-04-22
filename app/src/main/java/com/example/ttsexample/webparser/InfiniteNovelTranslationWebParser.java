@@ -38,6 +38,7 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
             if(text.toString().contains(keyWord) && element.hasAttr("href")){
                 String link = element.attr("href").replace("http", "https");
                 result.append(link);
+                break;
             }
         }
         return result;

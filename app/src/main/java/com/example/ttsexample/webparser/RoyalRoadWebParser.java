@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 
 public class RoyalRoadWebParser extends WebParser{
     private String host = "";
-    private StringBuffer tempNext = new StringBuffer();
 
     public RoyalRoadWebParser(String host){
         this.host = host;
@@ -19,44 +18,42 @@ public class RoyalRoadWebParser extends WebParser{
 
     @Override
     public StringBuffer getNextLink(Document doc) {
-        List<Element> elements = doc.getElementsByClass("btn-primary");
-        NexLink = new StringBuffer("");
-        for (Element element : elements) {
-            StringBuffer text = new StringBuffer(element.text());
-            if (text.toString().contains("Next") && element.hasAttr("href")) {
-                NexLink = new StringBuffer("https://"+host);
-                tempNext.append(element.attr("href"));
-                NexLink.append(tempNext);
-                break;
-            }
-        }
-        return NexLink;
+        return linkSeeker(doc, "Next");
     }
 
     @Override
     public StringBuffer getPreviousLink(Document doc) {
-        return new StringBuffer("");
+        return linkSeeker(doc, "Previous");
     }
 
     @Override
     protected StringBuffer linkSeeker(Document doc, String keyWord) {
-        return null;
+        List<Element> elements = doc.getElementsByClass("btn-primary");
+        NexLink = new StringBuffer("");
+        StringBuffer result = new StringBuffer();
+        for (Element element : elements) {
+            StringBuffer text = new StringBuffer(element.text());
+            if (text.toString().contains(keyWord) && element.hasAttr("href")) {
+                NexLink = new StringBuffer("https://"+host);
+                result = new StringBuffer("https://"+host);
+                result.append(element.attr("href"));
+                break;
+            }
+        }
+        return result;
     }
 
     @Override
     public StringBuffer getTitle(Document doc) {
+        StringBuffer result = new StringBuffer();
         Element formElement = doc.getElementsByClass("follow-author-form").get(0);
         Element inputElement = formElement.getElementsByTag("input").get(0);
         StringBuffer value = new StringBuffer(inputElement.attr("value"));
         Pattern pattern = Pattern.compile("\\/[fiction]+\\/\\d+\\/", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(value.toString());
-        StringBuffer result = new StringBuffer();
         if(matcher.find()) {
             StringBuffer newVal = new StringBuffer(matcher.replaceFirst(""));
             int index = newVal.indexOf("/");
-//            JeanniusLogger.log("rest", newVal.toString());
-//            JeanniusLogger.log("index", String.valueOf(index));
-//            JeanniusLogger.log("title", newVal.substring(0, index));
             result.append(newVal.substring(0, index));
         }
         return result;
