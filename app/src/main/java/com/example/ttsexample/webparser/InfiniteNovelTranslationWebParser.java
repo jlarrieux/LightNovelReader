@@ -15,7 +15,8 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
     private static final String EDITORS = "Editors: Loxy, Sage, Shasu";
     private static final String FOOTER = "Glossary | Next Chapter –>";
 
-    public InfiniteNovelTranslationWebParser(){
+    public InfiniteNovelTranslationWebParser(String host){
+        super(host);
         unwanteds.addAll(Arrays.asList(THIS_CHAPTER_IS, PLEASE_NOTICE, PLEASE_BE_SURE, THIS_CHAPTER_WAS, BY_NO_RIGHTS, EDITORS, FOOTER));
     }
 
@@ -47,7 +48,8 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
     @Override
     public StringBuffer getTitle(Document doc) throws Exception {
         String metaDescription = doc.select("meta[name=description]").get(0).attr("content");
-        return parseMetaDescription(metaDescription , WebParser.INFINITE_TRANSLATIONS, WebParser.DEFAULT_DELIMITER);
+        StringBuffer result = parseMetaDescription(metaDescription , WebParser.INFINITE_TRANSLATIONS, WebParser.DEFAULT_DELIMITER);
+        return addHost(result);
     }
 
 

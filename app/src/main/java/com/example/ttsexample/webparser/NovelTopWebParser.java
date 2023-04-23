@@ -7,7 +7,11 @@ import org.jsoup.nodes.Element;
 
 import java.util.List;
 
-public class NovelTopWebParser extends WebParser{
+public class NovelTopWebParser extends WebParser {
+    public NovelTopWebParser(String host) {
+        super(host);
+    }
+
     @Override
     public StringBuffer getNextLink(Document doc) {
         return linkSeeker(doc, "nav-next");
@@ -20,8 +24,14 @@ public class NovelTopWebParser extends WebParser{
 
     @Override
     protected StringBuffer linkSeeker(Document doc, String keyword) {
-        Element element = doc.getElementsByClass(keyword).first().selectFirst("a");
-        return new StringBuffer(element.attr("href"));
+        StringBuffer result = new StringBuffer("");
+
+        try {
+            Element element = doc.getElementsByClass(keyword).first().selectFirst("a");
+            result.append(element.attr("href"));
+        } catch (NullPointerException nullPointerException) {
+        }
+        return result;
     }
 
     @Override
@@ -34,7 +44,6 @@ public class NovelTopWebParser extends WebParser{
     public StringBuffer getTitle(Document doc) throws Exception {
         String meta = doc.select("link[rel=canonical]").get(0).attr("href");
         StringBuffer result = parseMetaDescription(meta, WebParser.NOVEL_TOP + "/novel", WebParser.DEFAULT_DELIMITER);
-        JeanniusLogger.log("potential title: ", result.toString());
-        return result;
+        return addHost(result);
     }
 }

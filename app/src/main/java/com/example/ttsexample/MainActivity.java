@@ -200,19 +200,19 @@ public class MainActivity extends AppCompatActivity {
                 switch(host) {
                     case WebParser.LIGHT_NOVEL_READER:
                     case WebParser.LIGHT_NOVEL_READER2:
-                        webParser = new LightNovelReaderWebParser();
+                        webParser = new LightNovelReaderWebParser(host);
                         break;
                     case WebParser.ROYAL_ROAD:
                         webParser = new RoyalRoadWebParser(host);
                         break;
                     case WebParser.MLT_READER:
-                        webParser = new MTLReaderWebParser();
+                        webParser = new MTLReaderWebParser(host);
                         break;
                     case WebParser.NOVEL_TOP:
-                        webParser = new NovelTopWebParser();
+                        webParser = new NovelTopWebParser(host);
                         break;
                     case WebParser.INFINITE_TRANSLATIONS:
-                        webParser = new InfiniteNovelTranslationWebParser();
+                        webParser = new InfiniteNovelTranslationWebParser(host);
                         break;
                     default:
                         String message = String.format("No Jeannius parser found for url: %s",host);
@@ -220,11 +220,11 @@ public class MainActivity extends AppCompatActivity {
                         throw new Exception(message);
                 }
                 nextLink = webParser.getNextLink(doc);
-                if(nextLink != null){
+                if(nextLink != null && !nextLink.toString().isEmpty()){
                     JeanniusLogger.log("Jeannius next link not empty: "+ nextLink);
                     saveLocally(nextLink.toString(), NEXT_LINK_FILE_NAME, getApplicationContext());
                 } else {
-                    JeanniusLogger.log("jeannius!!! nextlink is empty");
+                    JeanniusLogger.log("jeannius!!! next link is empty");
                 }
 
                 previousLink = webParser.getPreviousLink(doc);

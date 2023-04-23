@@ -19,10 +19,15 @@ public abstract class WebParser {
     public static final String INFINITE_TRANSLATIONS = "infinitenoveltranslations.net";
     public static final String DEFAULT_DELIMITER = "/";
     public StringBuilder title = new StringBuilder();
+    protected String host;
 
     protected List<String> unwanteds = new ArrayList<>();
     protected String CHAPTER_CONTENT_CLASS = "chapter-content" ;
     protected String TITLE_CONTENT_TAG = "title";
+
+    protected WebParser(String host){
+        this.host = host;
+    }
 
     public StringBuffer parseDocument(Document doc) {
         List<Element> textBase = doc.getElementsByClass(CHAPTER_CONTENT_CLASS);
@@ -78,6 +83,10 @@ public abstract class WebParser {
 
     public static CharSequence[] getParserList(){
         return List.of(LIGHT_NOVEL_READER, ROYAL_ROAD, MLT_READER, NOVEL_TOP, INFINITE_TRANSLATIONS).toArray(new CharSequence[0]);
+    }
+
+    public StringBuffer addHost(StringBuffer result) {
+        return result.append(" - " + host);
     }
 
 }

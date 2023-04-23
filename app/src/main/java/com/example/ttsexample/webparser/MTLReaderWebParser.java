@@ -10,6 +10,10 @@ import java.util.List;
 public class MTLReaderWebParser extends WebParser{
 
 
+    public MTLReaderWebParser(String host) {
+        super(host);
+    }
+
     @Override
     public StringBuffer getNextLink(Document doc) {
         return linkSeeker(doc, "Next");
@@ -39,7 +43,6 @@ public class MTLReaderWebParser extends WebParser{
     public StringBuffer getTitle(Document doc) throws Exception {
         String rest = doc.select("meta[name=description]").get(0).attr("content");
         StringBuffer title = parseRawTitle(rest, "-");
-        JeanniusLogger.log("title text", title.toString());
-        return title;
+        return addHost(title);
     }
 }

@@ -10,10 +10,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RoyalRoadWebParser extends WebParser{
-    private String host = "";
 
     public RoyalRoadWebParser(String host){
-        this.host = host;
+        super(host);
     }
 
     @Override
@@ -54,6 +53,6 @@ public class RoyalRoadWebParser extends WebParser{
             int index = newVal.indexOf("/");
             result.append(newVal.substring(0, index));
         }
-        return result;
+        return addHost(result);
     }
 }
