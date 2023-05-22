@@ -1,11 +1,5 @@
 package com.example.ttsexample;
 
-import static com.example.ttsexample.SaverLoaderUtils.saveLocally;
-
-import android.content.Intent;
-
-import androidx.core.app.ActivityOptionsCompat;
-
 import com.example.ttsexample.webparser.EuropaIsACoolMoon;
 import com.example.ttsexample.webparser.InfiniteNovelTranslationWebParser;
 import com.example.ttsexample.webparser.LightNovelReaderWebParser;

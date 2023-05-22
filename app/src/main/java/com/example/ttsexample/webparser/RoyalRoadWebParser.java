@@ -1,6 +1,5 @@
 package com.example.ttsexample.webparser;
 
-import com.example.ttsexample.JeanniusLogger;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

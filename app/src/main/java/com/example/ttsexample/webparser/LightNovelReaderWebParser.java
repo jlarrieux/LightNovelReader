@@ -1,8 +1,5 @@
 package com.example.ttsexample.webparser;
 
-import androidx.core.text.HtmlCompat;
-
-import com.example.ttsexample.JeanniusLogger;
 
 import java.util.Arrays;
 import java.util.List;
