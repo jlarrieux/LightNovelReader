@@ -1,6 +1,5 @@
 package com.example.ttsexample.webparser;
 
-import com.example.ttsexample.JeanniusLogger;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -59,7 +58,6 @@ public class EuropaIsACoolMoon extends WebParser{
     public StringBuffer getTitle(Document doc) throws Exception {
         Element potentialTitle = doc.getElementsByClass("entry-meta").get(0);
         Element potentialTitleRefined = potentialTitle.selectFirst("a[rel=category tag]");
-        JeanniusLogger.log("actual" ,potentialTitleRefined.text());
         return addHost(new StringBuffer(potentialTitleRefined.text()));
     }
 }
