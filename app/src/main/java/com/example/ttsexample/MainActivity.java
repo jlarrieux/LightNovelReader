@@ -166,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
     private void getTextFromWeb() {
         String url =  urlEditText.getText().toString();
 //        String url = "https://europaisacoolmoon.wordpress.com/2021/12/04/chapter-2-reincarnation/";
-        StringBuffer result = new StringBuffer("");
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
         }
