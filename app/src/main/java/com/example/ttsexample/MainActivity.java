@@ -85,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
         }
     });
 
-    private final OkHttpClient client = new OkHttpClient();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,9 +175,6 @@ public class MainActivity extends AppCompatActivity {
             toastUser(String.format("%s is not a valid URL", url));
         }
 
-        Request request = new Request.Builder().url(url).build();
-        CallBackFuture future = new CallBackFuture();
-        client.newCall(request).enqueue(future);
         URLHandler.Response response =  URLHandler.handleURL(url);
         System.out.printf("response from Jeannius: %s", response);
         saveLocally(url, CURRENT_LINK_FILE_NAME, getApplicationContext());
