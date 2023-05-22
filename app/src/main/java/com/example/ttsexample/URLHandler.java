@@ -14,8 +14,11 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -128,5 +131,15 @@ public class URLHandler {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static class CallBackFuture extends CompletableFuture<okhttp3.Response> implements Callback {
+        public void onResponse(Call call, okhttp3.Response response){
+            super.complete(response);
+        }
+
+        public void onFailure(Call call, IOException e){
+            super.completeExceptionally(e);
+        }
     }
 }
