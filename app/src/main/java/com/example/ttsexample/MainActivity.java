@@ -164,115 +164,64 @@ public class MainActivity extends AppCompatActivity {
         novelMap = loadNovelMapFromLocal(NOVEL_MAP_FILE_NAME, getApplicationContext());
     }
 
-    private String getTextFromWeb() {
+    private void getTextFromWeb() {
         String url =  urlEditText.getText().toString();
 //        String url = "https://europaisacoolmoon.wordpress.com/2021/12/04/chapter-2-reincarnation/";
         StringBuffer result = new StringBuffer("");
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
-            return result.toString();
         }
         if (!isValidURL(url)) {
             JeanniusLogger.log("NOT VALID", url);
             toastUser(String.format("%s is not a valid URL", url));
-            return result.toString();
         }
 
         Request request = new Request.Builder().url(url).build();
         CallBackFuture future = new CallBackFuture();
         client.newCall(request).enqueue(future);
-        try {
-            Response response = future.get();
-            try (ResponseBody responseBody = response.body()) {
-                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+        URLHandler.Response response =  URLHandler.handleURL(url);
+        System.out.printf("response from Jeannius: %s", response);
+        saveLocally(url, CURRENT_LINK_FILE_NAME, getApplicationContext());
 
-                Headers responseHeaders = response.headers();
-                for (int i = 0, size = responseHeaders.size(); i < size; i++) {
-                    JeanniusLogger.log(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-                }
-                StringBuffer value = new StringBuffer(responseBody.string());
-                Document doc = Jsoup.parse(value.toString());
-                doc.select("script").remove();
 
-                currentLink = new StringBuffer(url);
-                saveLocally(url, CURRENT_LINK_FILE_NAME, getApplicationContext());
-                String host = getUrlHost(url);
-                WebParser webParser;
-                switch(host) {
-                    case WebParser.LIGHT_NOVEL_READER:
-                    case WebParser.LIGHT_NOVEL_READER2:
-                        webParser = new LightNovelReaderWebParser(host);
-                        break;
-                    case WebParser.ROYAL_ROAD:
-                        webParser = new RoyalRoadWebParser(host);
-                        break;
-                    case WebParser.MLT_READER:
-                        webParser = new MTLReaderWebParser(host);
-                        break;
-                    case WebParser.NOVEL_TOP:
-                        webParser = new NovelTopWebParser(host);
-                        break;
-                    case WebParser.INFINITE_TRANSLATIONS:
-                        webParser = new InfiniteNovelTranslationWebParser(host);
-                        break;
-                    case WebParser.EUROPA_IS_A_COOL_M0ON:
-                        webParser = new EuropaIsACoolMoon(host);
-                        break;
-                    default:
-                        String message = String.format("No Jeannius parser found for url: %s",host);
-                        toastUser(message);
-                        throw new Exception(message);
-                }
-                nextLink = webParser.getNextLink(doc);
-                if(nextLink != null && !nextLink.toString().isEmpty()){
-                    JeanniusLogger.log("Jeannius next link not empty: "+ nextLink);
-                    saveLocally(nextLink.toString(), NEXT_LINK_FILE_NAME, getApplicationContext());
-                } else {
-                    JeanniusLogger.log("jeannius!!! next link is empty");
-                }
-
-                previousLink = webParser.getPreviousLink(doc);
-                if(previousLink != null && !previousLink.toString().isEmpty()){
-                    JeanniusLogger.log("Jeannius previous link not empty: "+ previousLink);
-                    saveLocally(previousLink.toString(), PREVIOUS_LINK_FILE_NAME, getApplicationContext());
-                } else {
-                    JeanniusLogger.log("jeannius!!! previous link is empty");
-                }
-
-                title = webParser.getTitle(doc);
-                if(title != null && !title.toString().isEmpty()) {
-                    JeanniusLogger.log("Jeannius title not empty: "+ title);
-                    saveTitleCurrentLink(title.toString(), currentLink.toString());
-                } else {
-                    JeanniusLogger.log("jeannius!!! title is empty");
-                }
-
-                System.out.println(doc);
-                JeanniusLogger.log("\n\n\n");
-                temp = webParser.parseDocument(doc);
-                JeanniusLogger.log(temp);
-                fullTextEditText.setText(temp.toString());
-
-                Intent callIntent = new Intent();
-                callIntent.setPackage("com.hyperionics.avar");
-                callIntent.setAction(Intent.ACTION_SEND);
-                callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-                callIntent.putExtra(Intent.EXTRA_TEXT, temp.toString());
-                callIntent.setType("text/plain");
-
-                startForResult.launch(callIntent, ActivityOptionsCompat.makeTaskLaunchBehind());
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        nextLink = response.next;
+        if(nextLink != null && !nextLink.toString().isEmpty()){
+            JeanniusLogger.log("Jeannius next link not empty: "+ nextLink);
+            saveLocally(nextLink.toString(), NEXT_LINK_FILE_NAME, getApplicationContext());
+        } else {
+            JeanniusLogger.log("jeannius!!! next link is empty");
         }
-        return result.toString();
+
+        previousLink = response.prev;
+        if(previousLink != null && !previousLink.toString().isEmpty()){
+            JeanniusLogger.log("Jeannius previous link not empty: "+ previousLink);
+            saveLocally(previousLink.toString(), PREVIOUS_LINK_FILE_NAME, getApplicationContext());
+        } else {
+            JeanniusLogger.log("jeannius!!! previous link is empty");
+        }
+
+        title = response.title;
+        if(title != null && !title.toString().isEmpty()) {
+            JeanniusLogger.log("Jeannius title not empty: "+ title);
+            saveTitleCurrentLink(title.toString(), currentLink.toString());
+        } else {
+            JeanniusLogger.log("jeannius!!! title is empty");
+        }
+
+
+        temp = response.text;
+        JeanniusLogger.log(temp);
+        fullTextEditText.setText(temp.toString());
+
+        Intent callIntent = new Intent();
+        callIntent.setPackage("com.hyperionics.avar");
+        callIntent.setAction(Intent.ACTION_SEND);
+        callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        callIntent.putExtra(Intent.EXTRA_TEXT, temp.toString());
+        callIntent.setType("text/plain");
+
+        startForResult.launch(callIntent, ActivityOptionsCompat.makeTaskLaunchBehind());
+
     }
 
     private void toastUser(String message) {
