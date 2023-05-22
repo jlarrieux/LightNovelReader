@@ -27,6 +27,7 @@ import androidx.fragment.app.DialogFragment;
 import com.example.ttsexample.DialogFragment.NovelDialogFragment;
 import com.example.ttsexample.DialogFragment.ParserDialogFragment;
 import com.example.ttsexample.databinding.ActivityMainBinding;
+import com.example.ttsexample.webparser.EuropaIsACoolMoon;
 import com.example.ttsexample.webparser.InfiniteNovelTranslationWebParser;
 import com.example.ttsexample.webparser.LightNovelReaderWebParser;
 import com.example.ttsexample.webparser.MTLReaderWebParser;
@@ -165,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String getTextFromWeb() {
         String url =  urlEditText.getText().toString();
-//        String url = test;
+//        String url = "https://europaisacoolmoon.wordpress.com/2021/12/04/chapter-2-reincarnation/";
         StringBuffer result = new StringBuffer("");
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
@@ -214,6 +215,9 @@ public class MainActivity extends AppCompatActivity {
                     case WebParser.INFINITE_TRANSLATIONS:
                         webParser = new InfiniteNovelTranslationWebParser(host);
                         break;
+                    case WebParser.EUROPA_IS_A_COOL_M0ON:
+                        webParser = new EuropaIsACoolMoon(host);
+                        break;
                     default:
                         String message = String.format("No Jeannius parser found for url: %s",host);
                         toastUser(message);
@@ -236,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 title = webParser.getTitle(doc);
-                if(!title.toString().isEmpty()) {
+                if(title != null && !title.toString().isEmpty()) {
                     JeanniusLogger.log("Jeannius title not empty: "+ title);
                     saveTitleCurrentLink(title.toString(), currentLink.toString());
                 } else {
