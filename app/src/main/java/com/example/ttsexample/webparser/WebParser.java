@@ -1,14 +1,15 @@
 package com.example.ttsexample.webparser;
 
-import androidx.core.text.HtmlCompat;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Safelist;
 
 public abstract class WebParser {
     public static final String LIGHT_NOVEL_READER = "lightnovelreader.me";
@@ -39,7 +40,16 @@ public abstract class WebParser {
 
     protected StringBuffer handleParsing(List<Element> textBase) {
         System.out.printf("\n\n\ntextBase: \n%s\n\n\n", textBase.toString());
-        StringBuffer text = new StringBuffer(HtmlCompat.fromHtml(textBase.get(0).toString(), HtmlCompat.FROM_HTML_MODE_LEGACY));
+        String readable = textBase.get(0).toString();
+        Document jsoupDoc = Jsoup.parse(readable);
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        outputSettings.prettyPrint(false);
+        jsoupDoc.outputSettings(outputSettings);
+        jsoupDoc.select("br").before("\\n");
+        jsoupDoc.select("p").before("\\n");
+        String str = jsoupDoc.html().replaceAll("\\\\n", "\n");
+        String strWithNewLines = Jsoup.clean(str, "", Safelist.none(), outputSettings);
+        StringBuffer text = new StringBuffer(strWithNewLines);
         text = removeUnwanted(text);
         return text;
     }
