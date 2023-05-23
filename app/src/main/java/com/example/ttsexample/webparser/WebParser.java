@@ -22,24 +22,24 @@ public abstract class WebParser {
     public static final String EUROPA_IS_A_COOL_M0ON = "europaisacoolmoon.wordpress.com";
 
     public static final String DEFAULT_DELIMITER = "/";
-    public StringBuffer title = new StringBuffer();
-    public StringBuffer chapterTitle = new StringBuffer();
-    protected StringBuffer host;
+    public StringBuilder title = new StringBuilder();
+    public StringBuilder chapterTitle = new StringBuilder();
+    protected StringBuilder host;
 
     protected List<String> unwanteds = new ArrayList<>();
     protected String CHAPTER_CONTENT_CLASS = "chapter-content";
 
     protected WebParser(String host) {
-        this.host = new StringBuffer(host);
+        this.host = new StringBuilder(host);
     }
 
-    public StringBuffer parseDocument(Document doc) {
+    public StringBuilder parseDocument(Document doc) {
         List<Element> textBase = doc.getElementsByClass(CHAPTER_CONTENT_CLASS);
         return this.handleParsing(textBase);
     }
 
-    protected StringBuffer handleParsing(List<Element> textBase) {
-        System.out.printf("\n\n\ntextBase: \n%s\n\n\n", textBase.toString());
+    protected StringBuilder handleParsing(List<Element> textBase) {
+//        System.out.printf("\n\n\ntextBase: \n%s\n\n\n", textBase.toString());
         String readable = textBase.get(0).toString();
         Document jsoupDoc = Jsoup.parse(readable);
         Document.OutputSettings outputSettings = new Document.OutputSettings();
@@ -49,22 +49,22 @@ public abstract class WebParser {
         jsoupDoc.select("p").before("\\n");
         String str = jsoupDoc.html().replaceAll("\\\\n", "\n");
         String strWithNewLines = Jsoup.clean(str, "", Safelist.none(), outputSettings);
-        StringBuffer text = new StringBuffer(strWithNewLines);
+        StringBuilder text = new StringBuilder(strWithNewLines);
         text = removeUnwanted(text);
         return text;
     }
 
-    protected StringBuffer removeUnwanted(StringBuffer text) {
+    protected StringBuilder removeUnwanted(StringBuilder text) {
         for (String unwant : unwanteds) {
-            text = new StringBuffer(text.toString().replace(unwant, ""));
+            text = new StringBuilder(text.toString().replace(unwant, ""));
         }
         return text;
     }
 
-    protected StringBuffer parseMetaDescription(String metaDescription, String patternPrefix, String stopper) throws Exception {
+    protected StringBuilder parseMetaDescription(String metaDescription, String patternPrefix, String stopper) throws Exception {
         Pattern pattern = Pattern.compile(patternPrefix + DEFAULT_DELIMITER);
         Matcher matcher = pattern.matcher(metaDescription);
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         if (matcher.find()) {
             String rest = metaDescription.substring(matcher.end());
@@ -75,34 +75,32 @@ public abstract class WebParser {
         return result;
     }
 
-    protected StringBuffer parseRawTitle(String rest, String stopper) {
+    protected StringBuilder parseRawTitle(String rest, String stopper) {
         String rawTitle = rest.substring(0, rest.indexOf(stopper));
-        return new StringBuffer(rawTitle.replace("-", " "));
+        return new StringBuilder(rawTitle.replace("-", " "));
     }
 
-    public abstract StringBuffer getNextLink(Document doc);
+    public abstract StringBuilder getNextLink(Document doc);
 
-    public abstract StringBuffer getPreviousLink(Document doc);
+    public abstract StringBuilder getPreviousLink(Document doc);
 
-    protected abstract StringBuffer linkSeeker(Document doc, String keyWord);
+    protected abstract StringBuilder linkSeeker(Document doc, String keyWord);
 
-    public abstract StringBuffer getTitle(Document doc) throws Exception;
+    public abstract StringBuilder getTitle(Document doc) throws Exception;
 
     public static CharSequence[] getParserList() {
         return List.of(LIGHT_NOVEL_READER, ROYAL_ROAD, MLT_READER, NOVEL_TOP, INFINITE_TRANSLATIONS, EUROPA_IS_A_COOL_M0ON).toArray(new CharSequence[0]);
     }
 
 
-    public StringBuffer getHost(){
+    public StringBuilder getHost(){
         return host;
     }
 
-    public StringBuffer getTitle(){
+    public StringBuilder getTitle(){
         return this.title;
     }
 
-    public StringBuffer getChapterTitle(){
-        return this.chapterTitle;
-    }
+    public abstract StringBuilder getChapterTitle(Document doc) throws Exception;
 
 }

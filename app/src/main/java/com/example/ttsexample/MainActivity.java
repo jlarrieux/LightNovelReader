@@ -52,14 +52,14 @@ public class MainActivity extends AppCompatActivity {
     private Button speakButton, nextButton, previousButton;
     private EditText urlEditText;
     private EditText fullTextEditText;
-    private StringBuffer currentLink= new StringBuffer("");
+    private StringBuilder currentLink= new StringBuilder("");
     private Map<String, String> novelMap = new HashMap<>();
 
 
     TextToSpeech t1;
-    StringBuffer temp;
-    StringBuffer nextLink = new StringBuffer();
-    StringBuffer previousLink =  new StringBuffer();
+    StringBuilder temp;
+    StringBuilder nextLink = new StringBuilder();
+    StringBuilder previousLink =  new StringBuilder();
     String titleAndHost = new String();
     TtsUtteranceListener ttsUtteranceListener;
     ActivityResultLauncher<Intent> startForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -140,16 +140,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        currentLink = new StringBuffer(loadFromLocal(CURRENT_LINK_FILE_NAME, getApplicationContext()));
+        currentLink = new StringBuilder(loadFromLocal(CURRENT_LINK_FILE_NAME, getApplicationContext()));
         urlEditText.setText(currentLink);
-        nextLink = new StringBuffer(loadFromLocal(NEXT_LINK_FILE_NAME, getApplicationContext()));
-        previousLink = new StringBuffer(loadFromLocal(PREVIOUS_LINK_FILE_NAME, getApplicationContext()));
+        nextLink = new StringBuilder(loadFromLocal(NEXT_LINK_FILE_NAME, getApplicationContext()));
+        previousLink = new StringBuilder(loadFromLocal(PREVIOUS_LINK_FILE_NAME, getApplicationContext()));
         novelMap = loadNovelMapFromLocal(NOVEL_MAP_FILE_NAME, getApplicationContext());
     }
 
     private void getTextFromWeb() {
-//        String url =  urlEditText.getText().toString();
-        String url = "https://www.royalroad.com/fiction/22518/chrysalis/chapter/422108/the-conclusion-the-feast";
+        String url =  urlEditText.getText().toString();
+//        String url = "https://www.royalroad.com/fiction/22518/chrysalis/chapter/422108/the-conclusion-the-feast";
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
         }
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         URLHandler.Response response =  URLHandler.handleURL(url);
-        System.out.printf("response from Jeannius: %s", response);
+//        System.out.printf("response from Jeannius: %s", response);
         saveLocally(url, CURRENT_LINK_FILE_NAME, getApplicationContext());
 
 
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         temp = response.text;
-        JeanniusLogger.log(temp);
+//        JeanniusLogger.log(temp);
         fullTextEditText.setText(temp.toString());
 
         Intent callIntent = new Intent();

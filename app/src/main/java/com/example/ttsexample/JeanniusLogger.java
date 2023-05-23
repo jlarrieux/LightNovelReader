@@ -9,7 +9,7 @@ public class JeanniusLogger {
         Log.i(PREFIX_TAG, message);
     }
 
-    public static void log(StringBuffer message) {
+    public static void log(StringBuilder message) {
         Log.i(PREFIX_TAG, message.toString());
     }
     public static void log(String tag, String message){
