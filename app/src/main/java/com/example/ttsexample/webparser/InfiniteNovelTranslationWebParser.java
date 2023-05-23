@@ -21,17 +21,17 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
     }
 
     @Override
-    public StringBuffer getNextLink(Document doc) {
+    public String getNextLink(Document doc) {
         return linkSeeker(doc, "Next");
     }
 
     @Override
-    public StringBuffer getPreviousLink(Document doc) {
+    public String getPreviousLink(Document doc) {
         return linkSeeker(doc, "Previous");
     }
 
 
-    protected StringBuffer linkSeeker(Document doc, String keyWord) {
+    protected String linkSeeker(Document doc, String keyWord) {
         List<Element> elements = doc.select("p a");
         StringBuffer result = new StringBuffer("");
         for(Element element : elements) {
@@ -42,14 +42,14 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
                 break;
             }
         }
-        return result;
+        return result.toString();
     }
 
     @Override
-    public StringBuffer getTitle(Document doc) throws Exception {
+    public String getTitle(Document doc) throws Exception {
         String metaDescription = doc.select("meta[name=description]").get(0).attr("content");
         StringBuffer result = parseMetaDescription(metaDescription , WebParser.INFINITE_TRANSLATIONS, WebParser.DEFAULT_DELIMITER);
-        return result;
+        return result.toString();
     }
 
 
@@ -59,8 +59,8 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
         return this.handleParsing(textBase);
     }
     @Override
-    public StringBuffer getChapterTitle(Document doc) throws Exception {
-        return new StringBuffer();
+    public String getChapterTitle(Document doc) throws Exception {
+        return "";
     }
 }
 

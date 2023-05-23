@@ -39,7 +39,7 @@ public class NovelDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         HashMap<String, String> novelMap = SaverLoaderUtils.loadNovelMapFromLocal(NOVEL_MAP_FILENAME, getContext());
-        JeanniusLogger.log("nOVLES", novelMap.toString());
+        JeanniusLogger.log("novels", novelMap.toString());
         builder.setTitle("Novel Maps");
         if (!novelMap.isEmpty()) {
             List<String> items = new ArrayList<>(novelMap.keySet());

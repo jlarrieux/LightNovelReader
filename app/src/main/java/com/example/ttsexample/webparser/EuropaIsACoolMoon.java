@@ -25,17 +25,17 @@ public class EuropaIsACoolMoon extends WebParser{
     }
 
     @Override
-    public StringBuffer getNextLink(Document doc) {
+    public String getNextLink(Document doc) {
         return linkSeeker(doc, "Next");
     }
 
     @Override
-    public StringBuffer getPreviousLink(Document doc) {
+    public String getPreviousLink(Document doc) {
         return linkSeeker(doc, "Previous");
     }
 
     @Override
-    protected StringBuffer linkSeeker(Document doc, String keyWord) {
+    protected String linkSeeker(Document doc, String keyWord) {
         StringBuffer result = new StringBuffer();
         List<Element> elements = doc.getElementsByClass("entry-content").select("p a");
         for(Element element: elements) {
@@ -45,7 +45,7 @@ public class EuropaIsACoolMoon extends WebParser{
             }
         }
 
-        return result;
+        return result.toString();
     }
 
     @Override
@@ -55,14 +55,14 @@ public class EuropaIsACoolMoon extends WebParser{
     }
 
     @Override
-    public StringBuffer getTitle(Document doc) throws Exception {
+    public String getTitle(Document doc) throws Exception {
         Element potentialTitle = doc.getElementsByClass("entry-meta").get(0);
         Element potentialTitleRefined = potentialTitle.selectFirst("a[rel=category tag]");
-        return new StringBuffer(potentialTitleRefined.text());
+        return potentialTitleRefined.text();
     }
 
     @Override
-    public StringBuffer getChapterTitle(Document doc) throws Exception {
-        return new StringBuffer();
+    public String getChapterTitle(Document doc) throws Exception {
+        return "";
     }
 }

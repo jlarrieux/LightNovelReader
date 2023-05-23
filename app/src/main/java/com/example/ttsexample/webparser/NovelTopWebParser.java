@@ -11,17 +11,17 @@ public class NovelTopWebParser extends WebParser {
     }
 
     @Override
-    public StringBuffer getNextLink(Document doc) {
+    public String getNextLink(Document doc) {
         return linkSeeker(doc, "nav-next");
     }
 
     @Override
-    public StringBuffer getPreviousLink(Document doc) {
+    public String getPreviousLink(Document doc) {
         return linkSeeker(doc, "nav-previous");
     }
 
     @Override
-    protected StringBuffer linkSeeker(Document doc, String keyword) {
+    protected String linkSeeker(Document doc, String keyword) {
         StringBuffer result = new StringBuffer("");
 
         try {
@@ -29,7 +29,7 @@ public class NovelTopWebParser extends WebParser {
             result.append(element.attr("href"));
         } catch (NullPointerException nullPointerException) {
         }
-        return result;
+        return result.toString();
     }
 
     @Override
@@ -39,14 +39,14 @@ public class NovelTopWebParser extends WebParser {
     }
 
     @Override
-    public StringBuffer getTitle(Document doc) throws Exception {
+    public String getTitle(Document doc) throws Exception {
         String meta = doc.select("link[rel=canonical]").get(0).attr("href");
         StringBuffer result = parseMetaDescription(meta, WebParser.NOVEL_TOP + "/novel", WebParser.DEFAULT_DELIMITER);
-        return result;
+        return result.toString();
     }
 
     @Override
-    public StringBuffer getChapterTitle(Document doc) throws Exception {
-        return new StringBuffer();
+    public String getChapterTitle(Document doc) throws Exception {
+        return "";
     }
 }

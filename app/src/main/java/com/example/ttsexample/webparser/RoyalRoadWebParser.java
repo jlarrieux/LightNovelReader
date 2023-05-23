@@ -15,17 +15,17 @@ public class RoyalRoadWebParser extends WebParser{
     }
 
     @Override
-    public StringBuffer getNextLink(Document doc) {
+    public String getNextLink(Document doc) {
         return linkSeeker(doc, "Next");
     }
 
     @Override
-    public StringBuffer getPreviousLink(Document doc) {
+    public String getPreviousLink(Document doc) {
         return linkSeeker(doc, "Previous");
     }
 
     @Override
-    protected StringBuffer linkSeeker(Document doc, String keyWord) {
+    protected String linkSeeker(Document doc, String keyWord) {
         List<Element> elements = doc.getElementsByClass("btn-primary");
         StringBuffer result = new StringBuffer();
         for (Element element : elements) {
@@ -36,11 +36,11 @@ public class RoyalRoadWebParser extends WebParser{
                 break;
             }
         }
-        return result;
+        return result.toString();
     }
 
     @Override
-    public StringBuffer getTitle(Document doc) {
+    public String getTitle(Document doc) {
         StringBuffer result = new StringBuffer();
         Element formElement = doc.getElementsByClass("follow-author-form").get(0);
         Element inputElement = formElement.getElementsByTag("input").get(0);
@@ -52,16 +52,16 @@ public class RoyalRoadWebParser extends WebParser{
             int index = newVal.indexOf("/");
             result.append(newVal.substring(0, index));
         }
-        this.title = new StringBuffer(result);
+        this.title = result.toString();
         return this.title;
     }
 
     @Override
-    public StringBuffer getChapterTitle(Document doc) {
+    public String getChapterTitle(Document doc) {
         Element head = doc.getElementsByTag("head").first();
         Element potentialTitle = head.getElementsByTag("title").first();
         String title = potentialTitle.text().split("-")[0].trim();
-        this.chapterTitle = new StringBuffer(title);
+        this.chapterTitle = title;
 
         return this.chapterTitle;
     }

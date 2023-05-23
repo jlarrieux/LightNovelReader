@@ -22,15 +22,15 @@ public abstract class WebParser {
     public static final String EUROPA_IS_A_COOL_M0ON = "europaisacoolmoon.wordpress.com";
 
     public static final String DEFAULT_DELIMITER = "/";
-    public StringBuffer title = new StringBuffer();
-    public StringBuffer chapterTitle = new StringBuffer();
-    protected StringBuffer host;
+    public String title = "";
+    public String chapterTitle = "";
+    protected String host = "";
 
     protected List<String> unwanteds = new ArrayList<>();
     protected String CHAPTER_CONTENT_CLASS = "chapter-content";
 
     protected WebParser(String host) {
-        this.host = new StringBuffer(host);
+        this.host = host;
     }
 
     public StringBuffer parseDocument(Document doc) {
@@ -80,27 +80,27 @@ public abstract class WebParser {
         return new StringBuffer(rawTitle.replace("-", " "));
     }
 
-    public abstract StringBuffer getNextLink(Document doc);
+    public abstract String getNextLink(Document doc);
 
-    public abstract StringBuffer getPreviousLink(Document doc);
+    public abstract String getPreviousLink(Document doc);
 
-    protected abstract StringBuffer linkSeeker(Document doc, String keyWord);
+    protected abstract String linkSeeker(Document doc, String keyWord);
 
-    public abstract StringBuffer getTitle(Document doc) throws Exception;
+    public abstract String getTitle(Document doc) throws Exception;
 
     public static CharSequence[] getParserList() {
         return List.of(LIGHT_NOVEL_READER, ROYAL_ROAD, MLT_READER, NOVEL_TOP, INFINITE_TRANSLATIONS, EUROPA_IS_A_COOL_M0ON).toArray(new CharSequence[0]);
     }
 
 
-    public StringBuffer getHost(){
+    public String getHost(){
         return host;
     }
 
-    public StringBuffer getTitle(){
+    public String getTitle(){
         return this.title;
     }
 
-    public abstract StringBuffer getChapterTitle(Document doc) throws Exception;
+    public abstract String getChapterTitle(Document doc) throws Exception;
 
 }

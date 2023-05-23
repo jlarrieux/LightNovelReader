@@ -28,12 +28,12 @@ import androidx.fragment.app.DialogFragment;
 import com.example.ttsexample.DialogFragment.NovelDialogFragment;
 import com.example.ttsexample.DialogFragment.ParserDialogFragment;
 import com.example.ttsexample.databinding.ActivityMainBinding;
+import com.example.ttsexample.webparser.WebParserResponse;
 
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Locale;
@@ -58,9 +58,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     TextToSpeech t1;
-    StringBuffer temp;
-    StringBuffer nextLink = new StringBuffer();
-    StringBuffer previousLink =  new StringBuffer();
+    StringBuffer tempText;
+    String nextLink = "";
+    String previousLink =  "";
     String titleAndHost = new String();
     TtsUtteranceListener ttsUtteranceListener;
     ActivityResultLauncher<Intent> startForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -143,8 +143,8 @@ public class MainActivity extends AppCompatActivity {
 
         currentLink = new StringBuffer(loadFromLocal(CURRENT_LINK_FILE_NAME, getApplicationContext()));
         urlEditText.setText(currentLink);
-        nextLink = new StringBuffer(loadFromLocal(NEXT_LINK_FILE_NAME, getApplicationContext()));
-        previousLink = new StringBuffer(loadFromLocal(PREVIOUS_LINK_FILE_NAME, getApplicationContext()));
+        nextLink = loadFromLocal(NEXT_LINK_FILE_NAME, getApplicationContext());
+        previousLink = loadFromLocal(PREVIOUS_LINK_FILE_NAME, getApplicationContext());
         novelMap = loadNovelMapFromLocal(NOVEL_MAP_FILE_NAME, getApplicationContext());
     }
 
@@ -159,12 +159,12 @@ public class MainActivity extends AppCompatActivity {
             toastUser(String.format("%s is not a valid URL", url));
         }
 
-        URLHandler.Response response =  URLHandler.handleURL(url);
+        WebParserResponse webParserResponse =  new URLHandler().handleURL(url);
 //        System.out.printf("response from Jeannius: %s", response);
         saveLocally(url, CURRENT_LINK_FILE_NAME, getApplicationContext());
 
 
-        nextLink = response.next;
+        nextLink = webParserResponse.next;
         if(nextLink != null && !nextLink.toString().isEmpty()){
             JeanniusLogger.log("Jeannius next link not empty: "+ nextLink);
             saveLocally(nextLink.toString(), NEXT_LINK_FILE_NAME, getApplicationContext());
@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             JeanniusLogger.log("jeannius!!! next link is empty");
         }
 
-        previousLink = response.prev;
+        previousLink = webParserResponse.prev;
         if(previousLink != null && !previousLink.toString().isEmpty()){
             JeanniusLogger.log("Jeannius previous link not empty: "+ previousLink);
             saveLocally(previousLink.toString(), PREVIOUS_LINK_FILE_NAME, getApplicationContext());
@@ -180,24 +180,25 @@ public class MainActivity extends AppCompatActivity {
             JeanniusLogger.log("jeannius!!! previous link is empty");
         }
 
-        titleAndHost = response.getTitleAndHost();
+        titleAndHost = webParserResponse.getTitleAndHost();
         if(titleAndHost != null && !titleAndHost.isEmpty()) {
             JeanniusLogger.log("Jeannius title not empty: "+ titleAndHost);
+            JeanniusLogger.log("Jeannius saving: " +currentLink.toString());
             saveTitleCurrentLink(titleAndHost, currentLink.toString());
         } else {
             JeanniusLogger.log("jeannius!!! title is empty");
         }
 
 
-        temp = response.text;
+        tempText = webParserResponse.text;
 //        JeanniusLogger.log(temp);
-        fullTextEditText.setText(temp.toString());
+        fullTextEditText.setText(tempText.toString());
 
         Intent callIntent = new Intent();
         callIntent.setPackage("com.hyperionics.avar");
         callIntent.setAction(Intent.ACTION_SEND);
         callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        callIntent.putExtra(Intent.EXTRA_TEXT, temp.toString());
+        callIntent.putExtra(Intent.EXTRA_TEXT, tempText.toString());
         callIntent.setType("text/plain");
 
         try {
@@ -211,17 +212,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void toastUser(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    private String getUrlHost(String red){
-        try {
-            URL url = new URL(red);
-            return url.getHost();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            toastUser("error while getting baseurl");
-        }
-        return "";
     }
 
     private void executeNext() {

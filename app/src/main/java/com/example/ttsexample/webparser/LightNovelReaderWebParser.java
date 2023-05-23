@@ -25,17 +25,17 @@ public class LightNovelReaderWebParser extends WebParser {
     }
 
     @Override
-    public StringBuffer getNextLink(Document doc) {
+    public String getNextLink(Document doc) {
         return linkSeeker(doc, "NEXT");
     }
 
     @Override
-    public StringBuffer getPreviousLink(Document doc) {
+    public String getPreviousLink(Document doc) {
         return linkSeeker(doc, "PREVIOUS");
     }
 
     @Override
-    protected StringBuffer linkSeeker(Document doc, String keyWord) {
+    protected String linkSeeker(Document doc, String keyWord) {
         StringBuffer result = new StringBuffer();
         List<Element> elements = doc.getElementsByClass("cm-button");
         for (Element element : elements) {
@@ -45,18 +45,18 @@ public class LightNovelReaderWebParser extends WebParser {
                 break;
             }
         }
-        return result;
+        return result.toString();
     }
 
     @Override
-    public StringBuffer getTitle(Document doc) throws Exception {
+    public String getTitle(Document doc) throws Exception {
         String metaLink = doc.select("link[rel=alternate]").get(0).attr("href");
         StringBuffer result = parseMetaDescription(metaLink, WebParser.LIGHT_NOVEL_READER2, WebParser.DEFAULT_DELIMITER);
-        return result;
+        return result.toString();
     }
 
     @Override
-    public StringBuffer getChapterTitle(Document doc) throws Exception {
-        return new StringBuffer();
+    public String getChapterTitle(Document doc) throws Exception {
+        return "";
     }
 }

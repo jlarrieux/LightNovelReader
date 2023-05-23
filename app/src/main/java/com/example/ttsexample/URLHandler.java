@@ -8,6 +8,7 @@ import com.example.ttsexample.webparser.MTLReaderWebParser;
 import com.example.ttsexample.webparser.NovelTopWebParser;
 import com.example.ttsexample.webparser.RoyalRoadWebParser;
 import com.example.ttsexample.webparser.WebParser;
+import com.example.ttsexample.webparser.WebParserResponse;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,30 +24,7 @@ import okhttp3.ResponseBody;
 
 public class URLHandler {
 
-    public static class Response{
-        public StringBuffer prev, next, text, title, host, chapterTitle;
-
-        public Response(StringBuffer prev, StringBuffer next, StringBuffer text,
-                        StringBuffer title, StringBuffer host, StringBuffer chapterTitle){
-            this.prev = prev;
-            this.next = next;
-            this.text = text;
-            this.title = title;
-            this.host = host;
-            this.chapterTitle = chapterTitle;
-        }
-
-        public String getTitleAndHost(){
-            return String.format("%s - %s", title, host);
-        }
-
-        public String toString(){
-            return String.format("{ \n\tprev: %s,\n\tTitle: %s\n\tnext: %s\n\ttext: \n\t%s }", prev, title, next, text);
-        }
-
-    }
-
-    public static Response handleURL(String url){
+    public WebParserResponse handleURL(String url){
         Request request = new Request.Builder().url(url).build();
         CallBackFuture future = new CallBackFuture();
         OkHttpClient client = new OkHttpClient();
@@ -87,16 +65,16 @@ public class URLHandler {
                         String message = String.format("No Jeannius parser found for url: %s",host);
                         throw new Exception(message);
                 }
-                StringBuffer nextLink = webParser.getNextLink(doc);
+                String nextLink = webParser.getNextLink(doc);
 
-                StringBuffer previousLink = webParser.getPreviousLink(doc);
+                String previousLink = webParser.getPreviousLink(doc);
 
-                StringBuffer title = webParser.getTitle(doc);
+                String title = webParser.getTitle(doc);
 
                 StringBuffer temp = webParser.parseDocument(doc);
-                StringBuffer chapterTitle = webParser.getChapterTitle(doc);
+                String chapterTitle = webParser.getChapterTitle(doc);
 
-                return new Response(previousLink, nextLink, temp, title, webParser.getHost(), chapterTitle);
+                return new WebParserResponse(previousLink, nextLink, temp, title, webParser.getHost(), chapterTitle);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -113,7 +91,7 @@ public class URLHandler {
         throw new Error("Unknown error");
     }
 
-    private static String getUrlHost(String red){
+    private String getUrlHost(String red){
         try {
             URL url = new URL(red);
             return url.getHost();
@@ -121,5 +99,9 @@ public class URLHandler {
             e.printStackTrace();
         }
         return "";
+    }
+
+    private void saveAll(){
+
     }
 }
