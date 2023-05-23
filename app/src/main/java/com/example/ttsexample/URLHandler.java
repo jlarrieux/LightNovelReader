@@ -26,7 +26,7 @@ import okhttp3.ResponseBody;
 public class URLHandler {
 
     public static class Response{
-        StringBuffer prev, next, text, title;
+        public StringBuffer prev, next, text, title;
 
         public Response(StringBuffer prev, StringBuffer next, StringBuffer text, StringBuffer title){
             this.prev = prev;
