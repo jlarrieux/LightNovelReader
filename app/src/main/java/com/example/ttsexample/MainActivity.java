@@ -53,12 +53,12 @@ public class MainActivity extends AppCompatActivity {
     private Button speakButton, nextButton, previousButton;
     private EditText urlEditText;
     private EditText fullTextEditText;
-    private StringBuffer currentLink= new StringBuffer("");
     private Map<String, String> novelMap = new HashMap<>();
 
 
     TextToSpeech t1;
     StringBuffer tempText;
+    private String currentLink= "";
     String nextLink = "";
     String previousLink =  "";
     String titleAndHost = new String();
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        currentLink = new StringBuffer(loadFromLocal(CURRENT_LINK_FILE_NAME, getApplicationContext()));
+        currentLink = loadFromLocal(CURRENT_LINK_FILE_NAME, getApplicationContext());
         urlEditText.setText(currentLink);
         nextLink = loadFromLocal(NEXT_LINK_FILE_NAME, getApplicationContext());
         previousLink = loadFromLocal(PREVIOUS_LINK_FILE_NAME, getApplicationContext());
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         WebParserResponse webParserResponse =  new URLHandler().handleURL(url);
 //        System.out.printf("response from Jeannius: %s", response);
         saveLocally(url, CURRENT_LINK_FILE_NAME, getApplicationContext());
-
+        currentLink = url;
 
         nextLink = webParserResponse.next;
         if(nextLink != null && !nextLink.toString().isEmpty()){
