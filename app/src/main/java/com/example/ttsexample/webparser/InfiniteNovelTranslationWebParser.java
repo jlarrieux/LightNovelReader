@@ -49,7 +49,7 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
     public StringBuffer getTitle(Document doc) throws Exception {
         String metaDescription = doc.select("meta[name=description]").get(0).attr("content");
         StringBuffer result = parseMetaDescription(metaDescription , WebParser.INFINITE_TRANSLATIONS, WebParser.DEFAULT_DELIMITER);
-        return addHost(result);
+        return result;
     }
 
 

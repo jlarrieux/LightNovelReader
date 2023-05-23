@@ -5,6 +5,7 @@ import static com.example.ttsexample.SaverLoaderUtils.loadFromLocal;
 import static com.example.ttsexample.SaverLoaderUtils.loadNovelMapFromLocal;
 import static com.example.ttsexample.SaverLoaderUtils.saveLocally;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -27,33 +28,16 @@ import androidx.fragment.app.DialogFragment;
 import com.example.ttsexample.DialogFragment.NovelDialogFragment;
 import com.example.ttsexample.DialogFragment.ParserDialogFragment;
 import com.example.ttsexample.databinding.ActivityMainBinding;
-import com.example.ttsexample.webparser.EuropaIsACoolMoon;
-import com.example.ttsexample.webparser.InfiniteNovelTranslationWebParser;
-import com.example.ttsexample.webparser.LightNovelReaderWebParser;
-import com.example.ttsexample.webparser.MTLReaderWebParser;
-import com.example.ttsexample.webparser.NovelTopWebParser;
-import com.example.ttsexample.webparser.RoyalRoadWebParser;
-import com.example.ttsexample.webparser.WebParser;
 
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okhttp3.Headers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     StringBuffer temp;
     StringBuffer nextLink = new StringBuffer();
     StringBuffer previousLink =  new StringBuffer();
-    StringBuffer title = new StringBuffer();
+    String titleAndHost = new String();
     TtsUtteranceListener ttsUtteranceListener;
     ActivityResultLauncher<Intent> startForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
@@ -164,8 +148,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getTextFromWeb() {
-        String url =  urlEditText.getText().toString();
-//        String url = "https://europaisacoolmoon.wordpress.com/2021/12/04/chapter-2-reincarnation/";
+//        String url =  urlEditText.getText().toString();
+        String url = "https://www.royalroad.com/fiction/22518/chrysalis/chapter/422108/the-conclusion-the-feast";
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
         }
@@ -195,10 +179,10 @@ public class MainActivity extends AppCompatActivity {
             JeanniusLogger.log("jeannius!!! previous link is empty");
         }
 
-        title = response.title;
-        if(title != null && !title.toString().isEmpty()) {
-            JeanniusLogger.log("Jeannius title not empty: "+ title);
-            saveTitleCurrentLink(title.toString(), currentLink.toString());
+        titleAndHost = response.getTitleAndHost();
+        if(titleAndHost != null && !titleAndHost.isEmpty()) {
+            JeanniusLogger.log("Jeannius title not empty: "+ titleAndHost);
+            saveTitleCurrentLink(titleAndHost, currentLink.toString());
         } else {
             JeanniusLogger.log("jeannius!!! title is empty");
         }
@@ -215,7 +199,12 @@ public class MainActivity extends AppCompatActivity {
         callIntent.putExtra(Intent.EXTRA_TEXT, temp.toString());
         callIntent.setType("text/plain");
 
-        startForResult.launch(callIntent, ActivityOptionsCompat.makeTaskLaunchBehind());
+        try {
+            startForResult.launch(callIntent, ActivityOptionsCompat.makeTaskLaunchBehind());
+        }catch (ActivityNotFoundException e){
+            toastUser(e.getMessage());
+        }
+
 
     }
 

@@ -22,15 +22,15 @@ public abstract class WebParser {
     public static final String EUROPA_IS_A_COOL_M0ON = "europaisacoolmoon.wordpress.com";
 
     public static final String DEFAULT_DELIMITER = "/";
-    public StringBuilder title = new StringBuilder();
-    protected String host;
+    public StringBuffer title = new StringBuffer();
+    public StringBuffer chapterTitle = new StringBuffer();
+    protected StringBuffer host;
 
     protected List<String> unwanteds = new ArrayList<>();
     protected String CHAPTER_CONTENT_CLASS = "chapter-content";
-    protected String TITLE_CONTENT_TAG = "title";
 
     protected WebParser(String host) {
-        this.host = host;
+        this.host = new StringBuffer(host);
     }
 
     public StringBuffer parseDocument(Document doc) {
@@ -92,8 +92,17 @@ public abstract class WebParser {
         return List.of(LIGHT_NOVEL_READER, ROYAL_ROAD, MLT_READER, NOVEL_TOP, INFINITE_TRANSLATIONS, EUROPA_IS_A_COOL_M0ON).toArray(new CharSequence[0]);
     }
 
-    public StringBuffer addHost(StringBuffer result) {
-        return result.append(" - " + host);
+
+    public StringBuffer getHost(){
+        return host;
+    }
+
+    public StringBuffer getTitle(){
+        return this.title;
+    }
+
+    public StringBuffer getChapterTitle(){
+        return this.chapterTitle;
     }
 
 }

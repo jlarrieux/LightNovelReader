@@ -52,6 +52,7 @@ public class RoyalRoadWebParser extends WebParser{
             int index = newVal.indexOf("/");
             result.append(newVal.substring(0, index));
         }
-        return addHost(result);
+        this.title = new StringBuffer(result);
+        return this.title;
     }
 }

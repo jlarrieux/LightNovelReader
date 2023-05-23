@@ -42,6 +42,6 @@ public class MTLReaderWebParser extends WebParser{
     public StringBuffer getTitle(Document doc) throws Exception {
         String rest = doc.select("meta[name=description]").get(0).attr("content");
         StringBuffer title = parseRawTitle(rest, "-");
-        return addHost(title);
+        return title;
     }
 }

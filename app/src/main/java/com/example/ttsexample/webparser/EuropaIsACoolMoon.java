@@ -58,6 +58,6 @@ public class EuropaIsACoolMoon extends WebParser{
     public StringBuffer getTitle(Document doc) throws Exception {
         Element potentialTitle = doc.getElementsByClass("entry-meta").get(0);
         Element potentialTitleRefined = potentialTitle.selectFirst("a[rel=category tag]");
-        return addHost(new StringBuffer(potentialTitleRefined.text()));
+        return new StringBuffer(potentialTitleRefined.text());
     }
 }

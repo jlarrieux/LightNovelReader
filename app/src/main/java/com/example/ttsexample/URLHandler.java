@@ -17,22 +17,27 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
-import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class URLHandler {
 
     public static class Response{
-        public StringBuffer prev, next, text, title;
+        public StringBuffer prev, next, text, title, host, chapterTitle;
 
-        public Response(StringBuffer prev, StringBuffer next, StringBuffer text, StringBuffer title){
+        public Response(StringBuffer prev, StringBuffer next, StringBuffer text,
+                        StringBuffer title, StringBuffer host, StringBuffer chapterTitle){
             this.prev = prev;
             this.next = next;
             this.text = text;
             this.title = title;
+            this.host = host;
+            this.chapterTitle = chapterTitle;
+        }
+
+        public String getTitleAndHost(){
+            return String.format("%s - %s", title, host);
         }
 
         public String toString(){
@@ -51,15 +56,10 @@ public class URLHandler {
             try (ResponseBody responseBody = response.body()) {
                 if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-                Headers responseHeaders = response.headers();
-//                for (int i = 0, size = responseHeaders.size(); i < size; i++) {
-//                    JeanniusLogger.log(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-//                }
                 StringBuffer value = new StringBuffer(responseBody.string());
                 Document doc = Jsoup.parse(value.toString());
                 doc.select("script").remove();
 
-                 StringBuffer currentLink = new StringBuffer(url);
                 String host = getUrlHost(url);
                 WebParser webParser;
                 switch(host) {
@@ -92,19 +92,9 @@ public class URLHandler {
 
                 StringBuffer title = webParser.getTitle(doc);
 
-
-//                System.out.println(doc);
-//                JeanniusLogger.log("\n\n\n");
                 StringBuffer temp = webParser.parseDocument(doc);
-//                JeanniusLogger.log(temp);
-//
-//                Intent callIntent = new Intent();
-//                callIntent.setPackage("com.hyperionics.avar");
-//                callIntent.setAction(Intent.ACTION_SEND);
-//                callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-//                callIntent.putExtra(Intent.EXTRA_TEXT, temp.toString());
-//                callIntent.setType("text/plain");
-                return new Response(previousLink, nextLink, temp, title);
+
+                return new Response(previousLink, nextLink, temp, title, webParser.getHost(), webParser.getChapterTitle());
 
             } catch (IOException e) {
                 e.printStackTrace();

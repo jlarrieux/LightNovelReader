@@ -52,6 +52,6 @@ public class LightNovelReaderWebParser extends WebParser {
     public StringBuffer getTitle(Document doc) throws Exception {
         String metaLink = doc.select("link[rel=alternate]").get(0).attr("href");
         StringBuffer result = parseMetaDescription(metaLink, WebParser.LIGHT_NOVEL_READER2, WebParser.DEFAULT_DELIMITER);
-        return addHost(result);
+        return result;
     }
 }
