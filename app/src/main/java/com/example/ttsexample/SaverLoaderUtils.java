@@ -30,23 +30,23 @@ public class SaverLoaderUtils {
         return new HashMap<>();
     }
 
-    public static StringBuilder loadFromLocal(String filename, Context context){
+    public static StringBuffer loadFromLocal(String filename, Context context){
         try (FileInputStream fis = context.openFileInput(filename);
              InputStreamReader inputStreamReader = new InputStreamReader(fis, StandardCharsets.UTF_8);
              BufferedReader reader = new BufferedReader(inputStreamReader)
         ) {
             String line = reader.readLine();
-            StringBuilder stringBuilder = new StringBuilder();
+            StringBuffer StringBuffer = new StringBuffer();
             if(line != null) {
-                stringBuilder.append(line);
+                StringBuffer.append(line);
             }
-            JeanniusLogger.log(stringBuilder.toString());
-            return stringBuilder;
+            JeanniusLogger.log(StringBuffer.toString());
+            return StringBuffer;
 
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
-        return new StringBuilder("");
+        return new StringBuffer("");
     }
 
     public static void saveLocally(Map<String, String> map, String filename, Context context) {

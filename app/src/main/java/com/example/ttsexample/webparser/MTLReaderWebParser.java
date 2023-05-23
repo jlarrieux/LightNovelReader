@@ -14,23 +14,23 @@ public class MTLReaderWebParser extends WebParser{
     }
 
     @Override
-    public StringBuilder getNextLink(Document doc) {
+    public StringBuffer getNextLink(Document doc) {
         return linkSeeker(doc, "Next");
     }
 
     @Override
-    public StringBuilder getPreviousLink(Document doc) {
+    public StringBuffer getPreviousLink(Document doc) {
         return linkSeeker(doc, "Back");
     }
 
-    protected StringBuilder linkSeeker(Document doc, String keyWord){
-        StringBuilder result = new StringBuilder("");
+    protected StringBuffer linkSeeker(Document doc, String keyWord){
+        StringBuffer result = new StringBuffer("");
         List<Element> elements = doc.select("h4:has(a)");
         for (Element element: elements) {
             Element a = element.selectFirst("a");
-            StringBuilder text = new StringBuilder(a. toString());
+            StringBuffer text = new StringBuffer(a. toString());
             if(a.toString().contains(keyWord)){
-                result = new StringBuilder(a.attr("href"));
+                result = new StringBuffer(a.attr("href"));
                 break;
             }
         }
@@ -39,14 +39,14 @@ public class MTLReaderWebParser extends WebParser{
     }
 
     @Override
-    public StringBuilder getTitle(Document doc) throws Exception {
+    public StringBuffer getTitle(Document doc) throws Exception {
         String rest = doc.select("meta[name=description]").get(0).attr("content");
-        StringBuilder title = parseRawTitle(rest, "-");
+        StringBuffer title = parseRawTitle(rest, "-");
         return title;
     }
 
     @Override
-    public StringBuilder getChapterTitle(Document doc) throws Exception {
-        return new StringBuilder();
+    public StringBuffer getChapterTitle(Document doc) throws Exception {
+        return new StringBuffer();
     }
 }

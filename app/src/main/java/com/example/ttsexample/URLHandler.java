@@ -24,10 +24,10 @@ import okhttp3.ResponseBody;
 public class URLHandler {
 
     public static class Response{
-        public StringBuilder prev, next, text, title, host, chapterTitle;
+        public StringBuffer prev, next, text, title, host, chapterTitle;
 
-        public Response(StringBuilder prev, StringBuilder next, StringBuilder text,
-                        StringBuilder title, StringBuilder host, StringBuilder chapterTitle){
+        public Response(StringBuffer prev, StringBuffer next, StringBuffer text,
+                        StringBuffer title, StringBuffer host, StringBuffer chapterTitle){
             this.prev = prev;
             this.next = next;
             this.text = text;
@@ -56,7 +56,7 @@ public class URLHandler {
             try (ResponseBody responseBody = response.body()) {
                 if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-                StringBuilder value = new StringBuilder(responseBody.string());
+                StringBuffer value = new StringBuffer(responseBody.string());
                 Document doc = Jsoup.parse(value.toString());
                 doc.select("script").remove();
 //                System.out.println(doc);
@@ -87,14 +87,14 @@ public class URLHandler {
                         String message = String.format("No Jeannius parser found for url: %s",host);
                         throw new Exception(message);
                 }
-                StringBuilder nextLink = webParser.getNextLink(doc);
+                StringBuffer nextLink = webParser.getNextLink(doc);
 
-                StringBuilder previousLink = webParser.getPreviousLink(doc);
+                StringBuffer previousLink = webParser.getPreviousLink(doc);
 
-                StringBuilder title = webParser.getTitle(doc);
+                StringBuffer title = webParser.getTitle(doc);
 
-                StringBuilder temp = webParser.parseDocument(doc);
-                StringBuilder chapterTitle = webParser.getChapterTitle(doc);
+                StringBuffer temp = webParser.parseDocument(doc);
+                StringBuffer chapterTitle = webParser.getChapterTitle(doc);
 
                 return new Response(previousLink, nextLink, temp, title, webParser.getHost(), chapterTitle);
 

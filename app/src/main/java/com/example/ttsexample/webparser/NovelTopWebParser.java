@@ -11,18 +11,18 @@ public class NovelTopWebParser extends WebParser {
     }
 
     @Override
-    public StringBuilder getNextLink(Document doc) {
+    public StringBuffer getNextLink(Document doc) {
         return linkSeeker(doc, "nav-next");
     }
 
     @Override
-    public StringBuilder getPreviousLink(Document doc) {
+    public StringBuffer getPreviousLink(Document doc) {
         return linkSeeker(doc, "nav-previous");
     }
 
     @Override
-    protected StringBuilder linkSeeker(Document doc, String keyword) {
-        StringBuilder result = new StringBuilder("");
+    protected StringBuffer linkSeeker(Document doc, String keyword) {
+        StringBuffer result = new StringBuffer("");
 
         try {
             Element element = doc.getElementsByClass(keyword).first().selectFirst("a");
@@ -33,20 +33,20 @@ public class NovelTopWebParser extends WebParser {
     }
 
     @Override
-    public StringBuilder parseDocument(Document doc) {
+    public StringBuffer parseDocument(Document doc) {
         List<Element> textbase = doc.getElementsByClass("entry-content");
         return this.handleParsing(textbase);
     }
 
     @Override
-    public StringBuilder getTitle(Document doc) throws Exception {
+    public StringBuffer getTitle(Document doc) throws Exception {
         String meta = doc.select("link[rel=canonical]").get(0).attr("href");
-        StringBuilder result = parseMetaDescription(meta, WebParser.NOVEL_TOP + "/novel", WebParser.DEFAULT_DELIMITER);
+        StringBuffer result = parseMetaDescription(meta, WebParser.NOVEL_TOP + "/novel", WebParser.DEFAULT_DELIMITER);
         return result;
     }
 
     @Override
-    public StringBuilder getChapterTitle(Document doc) throws Exception {
-        return new StringBuilder();
+    public StringBuffer getChapterTitle(Document doc) throws Exception {
+        return new StringBuffer();
     }
 }

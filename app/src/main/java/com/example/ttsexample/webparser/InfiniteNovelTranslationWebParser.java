@@ -21,21 +21,21 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
     }
 
     @Override
-    public StringBuilder getNextLink(Document doc) {
+    public StringBuffer getNextLink(Document doc) {
         return linkSeeker(doc, "Next");
     }
 
     @Override
-    public StringBuilder getPreviousLink(Document doc) {
+    public StringBuffer getPreviousLink(Document doc) {
         return linkSeeker(doc, "Previous");
     }
 
 
-    protected StringBuilder linkSeeker(Document doc, String keyWord) {
+    protected StringBuffer linkSeeker(Document doc, String keyWord) {
         List<Element> elements = doc.select("p a");
-        StringBuilder result = new StringBuilder("");
+        StringBuffer result = new StringBuffer("");
         for(Element element : elements) {
-            StringBuilder text = new StringBuilder(element.text());
+            StringBuffer text = new StringBuffer(element.text());
             if(text.toString().contains(keyWord) && element.hasAttr("href")){
                 String link = element.attr("href").replace("http", "https");
                 result.append(link);
@@ -46,21 +46,21 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
     }
 
     @Override
-    public StringBuilder getTitle(Document doc) throws Exception {
+    public StringBuffer getTitle(Document doc) throws Exception {
         String metaDescription = doc.select("meta[name=description]").get(0).attr("content");
-        StringBuilder result = parseMetaDescription(metaDescription , WebParser.INFINITE_TRANSLATIONS, WebParser.DEFAULT_DELIMITER);
+        StringBuffer result = parseMetaDescription(metaDescription , WebParser.INFINITE_TRANSLATIONS, WebParser.DEFAULT_DELIMITER);
         return result;
     }
 
 
     @Override
-    public StringBuilder parseDocument(Document doc) {
+    public StringBuffer parseDocument(Document doc) {
         List<Element> textBase = doc.getElementsByClass("entry-content");
         return this.handleParsing(textBase);
     }
     @Override
-    public StringBuilder getChapterTitle(Document doc) throws Exception {
-        return new StringBuilder();
+    public StringBuffer getChapterTitle(Document doc) throws Exception {
+        return new StringBuffer();
     }
 }
 

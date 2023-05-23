@@ -25,18 +25,18 @@ public class EuropaIsACoolMoon extends WebParser{
     }
 
     @Override
-    public StringBuilder getNextLink(Document doc) {
+    public StringBuffer getNextLink(Document doc) {
         return linkSeeker(doc, "Next");
     }
 
     @Override
-    public StringBuilder getPreviousLink(Document doc) {
+    public StringBuffer getPreviousLink(Document doc) {
         return linkSeeker(doc, "Previous");
     }
 
     @Override
-    protected StringBuilder linkSeeker(Document doc, String keyWord) {
-        StringBuilder result = new StringBuilder();
+    protected StringBuffer linkSeeker(Document doc, String keyWord) {
+        StringBuffer result = new StringBuffer();
         List<Element> elements = doc.getElementsByClass("entry-content").select("p a");
         for(Element element: elements) {
             String text = element.text();
@@ -49,20 +49,20 @@ public class EuropaIsACoolMoon extends WebParser{
     }
 
     @Override
-    public StringBuilder parseDocument(Document doc) {
+    public StringBuffer parseDocument(Document doc) {
         List<Element> textBase = doc.getElementsByClass("entry-content");
         return this.handleParsing(textBase);
     }
 
     @Override
-    public StringBuilder getTitle(Document doc) throws Exception {
+    public StringBuffer getTitle(Document doc) throws Exception {
         Element potentialTitle = doc.getElementsByClass("entry-meta").get(0);
         Element potentialTitleRefined = potentialTitle.selectFirst("a[rel=category tag]");
-        return new StringBuilder(potentialTitleRefined.text());
+        return new StringBuffer(potentialTitleRefined.text());
     }
 
     @Override
-    public StringBuilder getChapterTitle(Document doc) throws Exception {
-        return new StringBuilder();
+    public StringBuffer getChapterTitle(Document doc) throws Exception {
+        return new StringBuffer();
     }
 }

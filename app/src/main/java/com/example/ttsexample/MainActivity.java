@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+// MUST USE STRINGBUFFER!!!
 public class MainActivity extends AppCompatActivity {
 
     private static final String CURRENT_LINK_FILE_NAME = "currentLinkFileName";
@@ -52,14 +53,14 @@ public class MainActivity extends AppCompatActivity {
     private Button speakButton, nextButton, previousButton;
     private EditText urlEditText;
     private EditText fullTextEditText;
-    private StringBuilder currentLink= new StringBuilder("");
+    private StringBuffer currentLink= new StringBuffer("");
     private Map<String, String> novelMap = new HashMap<>();
 
 
     TextToSpeech t1;
-    StringBuilder temp;
-    StringBuilder nextLink = new StringBuilder();
-    StringBuilder previousLink =  new StringBuilder();
+    StringBuffer temp;
+    StringBuffer nextLink = new StringBuffer();
+    StringBuffer previousLink =  new StringBuffer();
     String titleAndHost = new String();
     TtsUtteranceListener ttsUtteranceListener;
     ActivityResultLauncher<Intent> startForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -140,10 +141,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        currentLink = new StringBuilder(loadFromLocal(CURRENT_LINK_FILE_NAME, getApplicationContext()));
+        currentLink = new StringBuffer(loadFromLocal(CURRENT_LINK_FILE_NAME, getApplicationContext()));
         urlEditText.setText(currentLink);
-        nextLink = new StringBuilder(loadFromLocal(NEXT_LINK_FILE_NAME, getApplicationContext()));
-        previousLink = new StringBuilder(loadFromLocal(PREVIOUS_LINK_FILE_NAME, getApplicationContext()));
+        nextLink = new StringBuffer(loadFromLocal(NEXT_LINK_FILE_NAME, getApplicationContext()));
+        previousLink = new StringBuffer(loadFromLocal(PREVIOUS_LINK_FILE_NAME, getApplicationContext()));
         novelMap = loadNovelMapFromLocal(NOVEL_MAP_FILE_NAME, getApplicationContext());
     }
 

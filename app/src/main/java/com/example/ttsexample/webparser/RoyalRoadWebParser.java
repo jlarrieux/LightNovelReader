@@ -15,23 +15,23 @@ public class RoyalRoadWebParser extends WebParser{
     }
 
     @Override
-    public StringBuilder getNextLink(Document doc) {
+    public StringBuffer getNextLink(Document doc) {
         return linkSeeker(doc, "Next");
     }
 
     @Override
-    public StringBuilder getPreviousLink(Document doc) {
+    public StringBuffer getPreviousLink(Document doc) {
         return linkSeeker(doc, "Previous");
     }
 
     @Override
-    protected StringBuilder linkSeeker(Document doc, String keyWord) {
+    protected StringBuffer linkSeeker(Document doc, String keyWord) {
         List<Element> elements = doc.getElementsByClass("btn-primary");
-        StringBuilder result = new StringBuilder();
+        StringBuffer result = new StringBuffer();
         for (Element element : elements) {
-            StringBuilder text = new StringBuilder(element.text());
+            StringBuffer text = new StringBuffer(element.text());
             if (text.toString().contains(keyWord) && element.hasAttr("href")) {
-                result = new StringBuilder("https://"+host);
+                result = new StringBuffer("https://"+host);
                 result.append(element.attr("href"));
                 break;
             }
@@ -40,28 +40,28 @@ public class RoyalRoadWebParser extends WebParser{
     }
 
     @Override
-    public StringBuilder getTitle(Document doc) {
-        StringBuilder result = new StringBuilder();
+    public StringBuffer getTitle(Document doc) {
+        StringBuffer result = new StringBuffer();
         Element formElement = doc.getElementsByClass("follow-author-form").get(0);
         Element inputElement = formElement.getElementsByTag("input").get(0);
-        StringBuilder value = new StringBuilder(inputElement.attr("value"));
+        StringBuffer value = new StringBuffer(inputElement.attr("value"));
         Pattern pattern = Pattern.compile("\\/[fiction]+\\/\\d+\\/", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(value.toString());
         if(matcher.find()) {
-            StringBuilder newVal = new StringBuilder(matcher.replaceFirst(""));
+            StringBuffer newVal = new StringBuffer(matcher.replaceFirst(""));
             int index = newVal.indexOf("/");
             result.append(newVal.substring(0, index));
         }
-        this.title = new StringBuilder(result);
+        this.title = new StringBuffer(result);
         return this.title;
     }
 
     @Override
-    public StringBuilder getChapterTitle(Document doc) {
+    public StringBuffer getChapterTitle(Document doc) {
         Element head = doc.getElementsByTag("head").first();
         Element potentialTitle = head.getElementsByTag("title").first();
         String title = potentialTitle.text().split("-")[0].trim();
-        this.chapterTitle = new StringBuilder(title);
+        this.chapterTitle = new StringBuffer(title);
 
         return this.chapterTitle;
     }
