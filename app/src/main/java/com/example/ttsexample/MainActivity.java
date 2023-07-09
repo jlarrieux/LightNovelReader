@@ -5,6 +5,8 @@ import static com.example.ttsexample.SaverLoaderUtils.loadFromLocal;
 import static com.example.ttsexample.SaverLoaderUtils.loadNovelMapFromLocal;
 import static com.example.ttsexample.SaverLoaderUtils.saveLocally;
 
+
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,6 +40,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 // MUST USE STRINGBUFFER!!!
 public class MainActivity extends AppCompatActivity {
@@ -58,9 +61,9 @@ public class MainActivity extends AppCompatActivity {
 
     TextToSpeech t1;
     StringBuffer tempText;
-    private String currentLink= "";
+    private String currentLink = "";
     String nextLink = "";
-    String previousLink =  "";
+    String previousLink = "";
     String titleAndHost = new String();
     TtsUtteranceListener ttsUtteranceListener;
     ActivityResultLauncher<Intent> startForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -81,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = new MenuInflater(this);
         inflater.inflate(R.menu.menu_overflow, menu);
         return super.onCreateOptionsMenu(menu);
@@ -149,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getTextFromWeb() {
-        String url =  urlEditText.getText().toString();
+        String url = urlEditText.getText().toString();
 //        String url = "https://www.royalroad.com/fiction/22518/chrysalis/chapter/422108/the-conclusion-the-feast";
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
@@ -159,53 +162,64 @@ public class MainActivity extends AppCompatActivity {
             toastUser(String.format("%s is not a valid URL", url));
         }
 
-        WebParserResponse webParserResponse =  new URLHandler().handleURL(url);
-//        System.out.printf("response from Jeannius: %s", response);
-        saveLocally(url, CURRENT_LINK_FILE_NAME, getApplicationContext());
-        currentLink = url;
+        CompletableFuture<WebParserResponse> future = new URLHandler().handleURL(url);
+        future.thenAccept(webParserResponse -> {
 
-        nextLink = webParserResponse.next;
-        if(nextLink != null && !nextLink.toString().isEmpty()){
-            JeanniusLogger.log("Jeannius next link not empty: "+ nextLink);
-            saveLocally(nextLink.toString(), NEXT_LINK_FILE_NAME, getApplicationContext());
-        } else {
-            JeanniusLogger.log("jeannius!!! next link is empty");
-        }
-
-        previousLink = webParserResponse.prev;
-        if(previousLink != null && !previousLink.toString().isEmpty()){
-            JeanniusLogger.log("Jeannius previous link not empty: "+ previousLink);
-            saveLocally(previousLink.toString(), PREVIOUS_LINK_FILE_NAME, getApplicationContext());
-        } else {
-            JeanniusLogger.log("jeannius!!! previous link is empty");
-        }
-
-        titleAndHost = webParserResponse.getTitleAndHost();
-        if(titleAndHost != null && !titleAndHost.isEmpty()) {
-            JeanniusLogger.log("Jeannius title not empty: "+ titleAndHost);
-            JeanniusLogger.log("Jeannius saving: " +currentLink.toString());
-            saveTitleCurrentLink(titleAndHost, currentLink.toString());
-        } else {
-            JeanniusLogger.log("jeannius!!! title is empty");
-        }
+            this.runOnUiThread(() -> {
+                // update UI with response
 
 
-        tempText = webParserResponse.text;
+//        WebParserResponse webParserResponse =  new URLHandler().handleURL(url);
+                saveLocally(url, CURRENT_LINK_FILE_NAME, getApplicationContext());
+                currentLink = url;
+
+                nextLink = webParserResponse.next;
+                if (nextLink != null && !nextLink.toString().isEmpty()) {
+                    JeanniusLogger.log("Jeannius next link not empty: " + nextLink);
+                    saveLocally(nextLink.toString(), NEXT_LINK_FILE_NAME, getApplicationContext());
+                } else {
+                    JeanniusLogger.log("jeannius!!! next link is empty");
+                }
+
+                previousLink = webParserResponse.prev;
+                if (previousLink != null && !previousLink.toString().isEmpty()) {
+                    JeanniusLogger.log("Jeannius previous link not empty: " + previousLink);
+                    saveLocally(previousLink.toString(), PREVIOUS_LINK_FILE_NAME, getApplicationContext());
+                } else {
+                    JeanniusLogger.log("jeannius!!! previous link is empty");
+                }
+
+                titleAndHost = webParserResponse.getTitleAndHost();
+                if (titleAndHost != null && !titleAndHost.isEmpty()) {
+                    JeanniusLogger.log("Jeannius title not empty: " + titleAndHost);
+                    JeanniusLogger.log("Jeannius saving: " + currentLink.toString());
+                    saveTitleCurrentLink(titleAndHost, currentLink.toString());
+                } else {
+                    JeanniusLogger.log("jeannius!!! title is empty");
+                }
+
+
+                tempText = webParserResponse.text;
 //        JeanniusLogger.log(temp);
-        fullTextEditText.setText(tempText.toString());
+                fullTextEditText.setText(tempText.toString());
 
-        Intent callIntent = new Intent();
-        callIntent.setPackage("com.hyperionics.avar");
-        callIntent.setAction(Intent.ACTION_SEND);
-        callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        callIntent.putExtra(Intent.EXTRA_TEXT, tempText.toString());
-        callIntent.setType("text/plain");
+                Intent callIntent = new Intent();
+                callIntent.setPackage("com.hyperionics.avar");
+                callIntent.setAction(Intent.ACTION_SEND);
+                callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                callIntent.putExtra(Intent.EXTRA_TEXT, tempText.toString());
+                callIntent.setType("text/plain");
 
-        try {
-            startForResult.launch(callIntent, ActivityOptionsCompat.makeTaskLaunchBehind());
-        }catch (ActivityNotFoundException e){
-            toastUser(e.getMessage());
-        }
+                try {
+                    startForResult.launch(callIntent, ActivityOptionsCompat.makeTaskLaunchBehind());
+                } catch (ActivityNotFoundException e) {
+                    toastUser(e.getMessage());
+                }
+
+
+            });
+
+        });
 
 
     }
@@ -224,8 +238,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void executePrevious(){
-        if(previousLink == null || previousLink.length() == 0) {
+    private void executePrevious() {
+        if (previousLink == null || previousLink.length() == 0) {
             toastUser("No previous link");
         } else {
             urlEditText.setText(previousLink.toString());
@@ -243,17 +257,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showParsers(){
+    private void showParsers() {
         DialogFragment newFragment = new ParserDialogFragment();
         newFragment.show(getSupportFragmentManager(), "Parsers");
     }
 
-    private void showNovels(){
+    private void showNovels() {
         DialogFragment newFragment = new NovelDialogFragment(NOVEL_MAP_FILE_NAME, urlEditText, fullTextEditText);
         newFragment.show(getSupportFragmentManager(), "Novels");
     }
 
-    private void saveTitleCurrentLink(String title, String currentLink){
+    private void saveTitleCurrentLink(String title, String currentLink) {
         novelMap.put(title, currentLink);
         saveLocally(novelMap, NOVEL_MAP_FILE_NAME, getApplicationContext());
     }
