@@ -152,8 +152,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getTextFromWeb() {
-        String url = urlEditText.getText().toString();
-//        String url = "https://www.royalroad.com/fiction/22518/chrysalis/chapter/422108/the-conclusion-the-feast";
+//        String url = urlEditText.getText().toString();
+        String url = "https://freewebnovel.com/supreme-magus-novel/chapter-2514.html";
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
         }
@@ -168,8 +168,6 @@ public class MainActivity extends AppCompatActivity {
             this.runOnUiThread(() -> {
                 // update UI with response
 
-
-//        WebParserResponse webParserResponse =  new URLHandler().handleURL(url);
                 saveLocally(url, CURRENT_LINK_FILE_NAME, getApplicationContext());
                 currentLink = url;
 
@@ -219,6 +217,11 @@ public class MainActivity extends AppCompatActivity {
 
             });
 
+        }).exceptionally( ex -> {
+            runOnUiThread(() -> {
+                toastUser(ex.getMessage());
+            });
+            return null;
         });
 
 
