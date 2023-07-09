@@ -2,6 +2,7 @@ package com.example.ttsexample;
 
 
 import com.example.ttsexample.webparser.EuropaIsACoolMoon;
+import com.example.ttsexample.webparser.FreeWebNovel;
 import com.example.ttsexample.webparser.InfiniteNovelTranslationWebParser;
 import com.example.ttsexample.webparser.LightNovelReaderWebParser;
 import com.example.ttsexample.webparser.MTLReaderWebParser;
@@ -78,6 +79,9 @@ public class URLHandler {
                         case WebParser.EUROPA_IS_A_COOL_M0ON:
                             webParser = new EuropaIsACoolMoon(host);
                             break;
+                        case WebParser.FREE_WEBNOVEL:
+                            webParser = new FreeWebNovel(host);
+                            break;
                         default:
                             String message = String.format("No Jeannius parser found for url: %s",host);
                             throw new Exception(message);
@@ -88,8 +92,9 @@ public class URLHandler {
 
                     String title = webParser.getTitle(doc);
 
-                    StringBuffer temp = webParser.parseDocument(doc);
                     String chapterTitle = webParser.getChapterTitle(doc);
+
+                    StringBuffer temp = webParser.parseDocument(doc);
 
                     WebParserResponse webParserResponse = new WebParserResponse(previousLink, nextLink, temp, title, webParser.getHost(), chapterTitle);
                     future.complete(webParserResponse);

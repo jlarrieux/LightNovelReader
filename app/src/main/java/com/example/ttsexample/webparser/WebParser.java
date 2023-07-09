@@ -18,10 +18,11 @@ public abstract class WebParser {
     public static final String MLT_READER = "mtlreader.com";
     public static final String NOVEL_TOP = "noveltop.net";
     public static final String INFINITE_TRANSLATIONS = "infinitenoveltranslations.net";
-
     public static final String EUROPA_IS_A_COOL_M0ON = "europaisacoolmoon.wordpress.com";
+    public static final String FREE_WEBNOVEL = "freewebnovel.com";
 
     public static final String DEFAULT_DELIMITER = "/";
+    protected static final String HTTPS = "https://";
     public String title = "";
     public String chapterTitle = "";
     protected String host = "";

@@ -31,7 +31,7 @@ public class RoyalRoadWebParser extends WebParser{
         for (Element element : elements) {
             StringBuffer text = new StringBuffer(element.text());
             if (text.toString().contains(keyWord) && element.hasAttr("href")) {
-                result = new StringBuffer("https://"+host);
+                result = new StringBuffer(HTTPS +host);
                 result.append(element.attr("href"));
                 break;
             }
