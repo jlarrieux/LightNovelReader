@@ -1,6 +1,6 @@
-package com.example.ttsexample.webparser;
+package com.jeannius.lightnovelreader.webparser;
 
-import com.example.ttsexample.JeanniusLogger;
+import com.jeannius.lightnovelreader.JeanniusLogger;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

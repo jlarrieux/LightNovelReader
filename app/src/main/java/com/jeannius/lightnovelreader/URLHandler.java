@@ -1,15 +1,15 @@
-package com.example.ttsexample;
+package com.jeannius.lightnovelreader;
 
 
-import com.example.ttsexample.webparser.EuropaIsACoolMoon;
-import com.example.ttsexample.webparser.FreeWebNovel;
-import com.example.ttsexample.webparser.InfiniteNovelTranslationWebParser;
-import com.example.ttsexample.webparser.LightNovelReaderWebParser;
-import com.example.ttsexample.webparser.MTLReaderWebParser;
-import com.example.ttsexample.webparser.NovelTopWebParser;
-import com.example.ttsexample.webparser.RoyalRoadWebParser;
-import com.example.ttsexample.webparser.WebParser;
-import com.example.ttsexample.webparser.WebParserResponse;
+import com.jeannius.lightnovelreader.webparser.EuropaIsACoolMoon;
+import com.jeannius.lightnovelreader.webparser.FreeWebNovel;
+import com.jeannius.lightnovelreader.webparser.InfiniteNovelTranslationWebParser;
+import com.jeannius.lightnovelreader.webparser.LightNovelReaderWebParser;
+import com.jeannius.lightnovelreader.webparser.MTLReaderWebParser;
+import com.jeannius.lightnovelreader.webparser.NovelTopWebParser;
+import com.jeannius.lightnovelreader.webparser.RoyalRoadWebParser;
+import com.jeannius.lightnovelreader.webparser.WebParser;
+import com.jeannius.lightnovelreader.webparser.WebParserResponse;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

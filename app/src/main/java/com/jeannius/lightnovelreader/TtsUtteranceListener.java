@@ -1,4 +1,4 @@
-package com.example.ttsexample;
+package com.jeannius.lightnovelreader;
 
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;

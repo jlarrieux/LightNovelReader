@@ -1,4 +1,4 @@
-package com.example.ttsexample.webparser;
+package com.jeannius.lightnovelreader.webparser;
 
 
 import java.util.Arrays;
@@ -51,7 +51,7 @@ public class LightNovelReaderWebParser extends WebParser {
     @Override
     public String getTitle(Document doc) throws Exception {
         String metaLink = doc.select("link[rel=alternate]").get(0).attr("href");
-        StringBuffer result = parseMetaDescription(metaLink, WebParser.LIGHT_NOVEL_READER2, WebParser.DEFAULT_DELIMITER);
+        StringBuffer result = parseMetaDescription(metaLink, LIGHT_NOVEL_READER2, DEFAULT_DELIMITER);
         return result.toString();
     }
 

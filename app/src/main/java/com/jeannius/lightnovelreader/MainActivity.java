@@ -1,12 +1,11 @@
-package com.example.ttsexample;
+package com.jeannius.lightnovelreader;
 
 
-import static com.example.ttsexample.SaverLoaderUtils.loadFromLocal;
-import static com.example.ttsexample.SaverLoaderUtils.loadNovelMapFromLocal;
-import static com.example.ttsexample.SaverLoaderUtils.saveLocally;
+import static com.jeannius.lightnovelreader.SaverLoaderUtils.loadFromLocal;
+import static com.jeannius.lightnovelreader.SaverLoaderUtils.loadNovelMapFromLocal;
+import static com.jeannius.lightnovelreader.SaverLoaderUtils.saveLocally;
 
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,10 +26,10 @@ import android.view.View;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.ttsexample.DialogFragment.NovelDialogFragment;
-import com.example.ttsexample.DialogFragment.ParserDialogFragment;
-import com.example.ttsexample.databinding.ActivityMainBinding;
-import com.example.ttsexample.webparser.WebParserResponse;
+import com.jeannius.lightnovelreader.DialogFragment.NovelDialogFragment;
+import com.jeannius.lightnovelreader.DialogFragment.ParserDialogFragment;
+import com.jeannius.lightnovelreader.databinding.ActivityMainBinding;
+import com.jeannius.lightnovelreader.webparser.WebParserResponse;
 
 import android.widget.Button;
 import android.widget.EditText;
@@ -152,8 +151,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getTextFromWeb() {
-//        String url = urlEditText.getText().toString();
-        String url = "https://freewebnovel.com/supreme-magus-novel/chapter-2514.html";
+        String url = urlEditText.getText().toString();
+//        String url = "https://freewebnovel.com/supreme-magus-novel/chapter-2514.html";
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
         }

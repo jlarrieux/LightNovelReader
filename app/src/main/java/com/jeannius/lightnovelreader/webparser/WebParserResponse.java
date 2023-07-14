@@ -1,4 +1,4 @@
-package com.example.ttsexample.webparser;
+package com.jeannius.lightnovelreader.webparser;
 
 public class WebParserResponse {
     public String prev, next, title, host, chapterTitle;

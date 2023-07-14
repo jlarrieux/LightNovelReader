@@ -1,4 +1,4 @@
-package com.example.ttsexample;
+package com.jeannius.lightnovelreader;
 
 import android.content.Context;
 import android.view.LayoutInflater;

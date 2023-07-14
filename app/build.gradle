@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.ttsexample'
+    namespace 'com.jeannius.lightnovelreader'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.ttsexample"
+        applicationId "com.jeannius.lightnovelreader"
         minSdk 24
         targetSdk 32
         versionCode 1

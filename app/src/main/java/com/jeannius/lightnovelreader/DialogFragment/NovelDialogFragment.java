@@ -1,8 +1,6 @@
-package com.example.ttsexample.DialogFragment;
+package com.jeannius.lightnovelreader.DialogFragment;
 
 import android.app.Dialog;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
@@ -15,9 +13,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.ttsexample.CustomAdapter;
-import com.example.ttsexample.JeanniusLogger;
-import com.example.ttsexample.SaverLoaderUtils;
+import com.jeannius.lightnovelreader.JeanniusLogger;
+import com.jeannius.lightnovelreader.SaverLoaderUtils;
+import com.jeannius.lightnovelreader.CustomAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

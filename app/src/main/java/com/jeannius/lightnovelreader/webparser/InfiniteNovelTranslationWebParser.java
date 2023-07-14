@@ -1,4 +1,4 @@
-package com.example.ttsexample.webparser;
+package com.jeannius.lightnovelreader.webparser;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -48,7 +48,7 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
     @Override
     public String getTitle(Document doc) throws Exception {
         String metaDescription = doc.select("meta[name=description]").get(0).attr("content");
-        StringBuffer result = parseMetaDescription(metaDescription , WebParser.INFINITE_TRANSLATIONS, WebParser.DEFAULT_DELIMITER);
+        StringBuffer result = parseMetaDescription(metaDescription , INFINITE_TRANSLATIONS, DEFAULT_DELIMITER);
         return result.toString();
     }
 

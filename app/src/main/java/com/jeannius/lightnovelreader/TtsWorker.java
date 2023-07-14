@@ -1,14 +1,11 @@
-package com.example.ttsexample;
+package com.jeannius.lightnovelreader;
 
-import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 

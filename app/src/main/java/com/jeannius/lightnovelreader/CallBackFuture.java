@@ -1,4 +1,4 @@
-package com.example.ttsexample;
+package com.jeannius.lightnovelreader;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;

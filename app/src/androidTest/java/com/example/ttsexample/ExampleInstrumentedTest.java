@@ -1,4 +1,4 @@
-package com.example.ttsexample;
+package com.jeannius.webnovelttsreader;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.example.ttsexample", appContext.getPackageName());
+        assertEquals("com.jeannius.webnovelttsreader", appContext.getPackageName());
     }
 }

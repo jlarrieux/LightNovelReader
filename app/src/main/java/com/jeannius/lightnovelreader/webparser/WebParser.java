@@ -1,4 +1,4 @@
-package com.example.ttsexample.webparser;
+package com.jeannius.lightnovelreader.webparser;
 
 
 import java.util.ArrayList;

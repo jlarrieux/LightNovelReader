@@ -1,4 +1,4 @@
-package com.example.ttsexample.webparser;
+package com.jeannius.lightnovelreader.webparser;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -41,7 +41,7 @@ public class NovelTopWebParser extends WebParser {
     @Override
     public String getTitle(Document doc) throws Exception {
         String meta = doc.select("link[rel=canonical]").get(0).attr("href");
-        StringBuffer result = parseMetaDescription(meta, WebParser.NOVEL_TOP + "/novel", WebParser.DEFAULT_DELIMITER);
+        StringBuffer result = parseMetaDescription(meta, NOVEL_TOP + "/novel", DEFAULT_DELIMITER);
         return result.toString();
     }
 

@@ -1,4 +1,4 @@
-package com.example.ttsexample;
+package com.jeannius.lightnovelreader;
 
 import android.util.Log;
 
