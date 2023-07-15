@@ -12,14 +12,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TTSExample"
+        android:theme="@style/Theme.LightNovelReader"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:usesCleartextTraffic="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.TTSExample.NoActionBar">
+            android:theme="@style/Theme.LightNovelReader.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

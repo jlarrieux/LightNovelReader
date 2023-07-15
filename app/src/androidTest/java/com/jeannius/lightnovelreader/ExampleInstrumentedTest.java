@@ -1,4 +1,4 @@
-package com.jeannius.webnovelttsreader;
+package com.jeannius.lightnovelreader;
 
 import android.content.Context;
 
