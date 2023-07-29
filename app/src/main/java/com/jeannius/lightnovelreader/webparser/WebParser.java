@@ -20,7 +20,7 @@ public abstract class WebParser {
     public static final String INFINITE_TRANSLATIONS = "infinitenoveltranslations.net";
     public static final String EUROPA_IS_A_COOL_M0ON = "europaisacoolmoon.wordpress.com";
     public static final String FREE_WEBNOVEL = "freewebnovel.com";
-
+    public static final String INN_READ = "innread.com";
     public static final String DEFAULT_DELIMITER = "/";
     protected static final String HTTPS = "https://";
     public String title = "";
@@ -90,15 +90,16 @@ public abstract class WebParser {
     public abstract String getTitle(Document doc) throws Exception;
 
     public static CharSequence[] getParserList() {
-        return List.of(LIGHT_NOVEL_READER, ROYAL_ROAD, MLT_READER, NOVEL_TOP, INFINITE_TRANSLATIONS, EUROPA_IS_A_COOL_M0ON).toArray(new CharSequence[0]);
+        return List.of(LIGHT_NOVEL_READER, ROYAL_ROAD, MLT_READER, NOVEL_TOP, INFINITE_TRANSLATIONS,
+                EUROPA_IS_A_COOL_M0ON, FREE_WEBNOVEL, INN_READ).toArray(new CharSequence[0]);
     }
 
 
-    public String getHost(){
+    public String getHost() {
         return host;
     }
 
-    public String getTitle(){
+    public String getTitle() {
         return this.title;
     }
 

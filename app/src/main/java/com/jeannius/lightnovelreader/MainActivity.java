@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getTextFromWeb() {
         String url = urlEditText.getText().toString();
-//        String url = "https://freewebnovel.com/supreme-magus-novel/chapter-2514.html";
+//        String url = "https://innread.com/novel/shadow-slave/chapter-990.html";
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
         }

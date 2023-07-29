@@ -79,6 +79,7 @@ public class URLHandler {
                         case WebParser.EUROPA_IS_A_COOL_M0ON:
                             webParser = new EuropaIsACoolMoon(host);
                             break;
+                        case WebParser.INN_READ:
                         case WebParser.FREE_WEBNOVEL:
                             webParser = new FreeWebNovel(host);
                             break;
