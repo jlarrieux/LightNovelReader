@@ -3,6 +3,7 @@ package com.jeannius.lightnovelreader.webparser;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,8 +18,8 @@ public class LightNovelReaderWebParser extends WebParser {
     private static final String READ_FIRST = "Read f-irst at   l  i g h t-n o v el r e a-d e r . or g ";
     private static final String READ_FIRST2 = "Read first at l i g h t n o v e l r e a d e r . o r g";
 
-    public LightNovelReaderWebParser(String host){
-        super(host);
+    public LightNovelReaderWebParser(String host, Set<String> blocked){
+        super(host, blocked);
         CHAPTER_CONTENT_CLASS = "text-base";
         unwanteds.addAll(Arrays.asList(SPONSORED_CONTENT, SPONSORED_CONTENT2, FIND_AUTHORIZED,
                 FIND_AUTHORIZED2, IF_YOU_FIND, TIP, READ_FIRST, READ_FIRST2));

@@ -5,6 +5,7 @@ import org.jsoup.nodes.Element;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class InfiniteNovelTranslationWebParser extends WebParser {
     private static final String THIS_CHAPTER_IS = "This chapter is the edited version of another translation. You can find the original chapter post here.";
@@ -15,8 +16,8 @@ public class InfiniteNovelTranslationWebParser extends WebParser {
     private static final String EDITORS = "Editors: Loxy, Sage, Shasu";
     private static final String FOOTER = "Glossary | Next Chapter –>";
 
-    public InfiniteNovelTranslationWebParser(String host){
-        super(host);
+    public InfiniteNovelTranslationWebParser(String host, Set<String> blocked){
+        super(host, blocked);
         unwanteds.addAll(Arrays.asList(THIS_CHAPTER_IS, PLEASE_NOTICE, PLEASE_BE_SURE, THIS_CHAPTER_WAS, BY_NO_RIGHTS, EDITORS, FOOTER));
     }
 

@@ -1,5 +1,5 @@
 package com.jeannius.lightnovelreader.Interface;
 
-public interface OnFreeWebNovelSynonymsUpdated {
+public interface OnFreeWebNovelSynonymSetUpdated {
     void reloadSynonyms();
 }

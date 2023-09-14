@@ -6,5 +6,7 @@
         android:title="Novel List"/>
     <item android:id="@+id/freeWebNovelSynonyms"
         android:title="FreeWebNovel Synonyms"/>
+    <item android:id="@+id/blockedStrings"
+        android:title="Blocked Strings"/>
 
 </menu>

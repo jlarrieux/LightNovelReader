@@ -31,7 +31,7 @@ import okhttp3.ResponseBody;
 
 public class URLHandler {
 
-    public CompletableFuture<WebParserResponse> handleURL(String url, Set<String> freeWebNovelSynonyms) {
+    public CompletableFuture<WebParserResponse> handleURL(String url, Set<String> freeWebNovelSynonyms, Set<String> blockedStrings) {
         Request request = new Request.Builder().url(url).build();
 
         // set timeouts when creating the OkHttpClient
@@ -64,29 +64,29 @@ public class URLHandler {
                     switch(host) {
                         case WebParser.LIGHT_NOVEL_READER:
                         case WebParser.LIGHT_NOVEL_READER2:
-                            webParser = new LightNovelReaderWebParser(host);
+                            webParser = new LightNovelReaderWebParser(host, blockedStrings);
                             break;
                         case WebParser.ROYAL_ROAD:
-                            webParser = new RoyalRoadWebParser(host);
+                            webParser = new RoyalRoadWebParser(host, blockedStrings);
                             break;
                         case WebParser.MLT_READER:
-                            webParser = new MTLReaderWebParser(host);
+                            webParser = new MTLReaderWebParser(host, blockedStrings);
                             break;
                         case WebParser.NOVEL_TOP:
-                            webParser = new NovelTopWebParser(host);
+                            webParser = new NovelTopWebParser(host, blockedStrings);
                             break;
                         case WebParser.INFINITE_TRANSLATIONS:
-                            webParser = new InfiniteNovelTranslationWebParser(host);
+                            webParser = new InfiniteNovelTranslationWebParser(host, blockedStrings);
                             break;
                         case WebParser.EUROPA_IS_A_COOL_M0ON:
-                            webParser = new EuropaIsACoolMoon(host);
+                            webParser = new EuropaIsACoolMoon(host, blockedStrings);
                             break;
                         case WebParser.FREE_WEBNOVEL:
-                            webParser = new FreeWebNovel(host);
+                            webParser = new FreeWebNovel(host, blockedStrings);
                             break;
                         default:
                             if(freeWebNovelSynonyms.contains(host)){
-                                webParser = new FreeWebNovel(host);
+                                webParser = new FreeWebNovel(host, blockedStrings);
                                 break;
                             }
                             String message = String.format("No Jeannius parser found for url: %s",host);

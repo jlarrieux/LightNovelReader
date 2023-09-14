@@ -7,6 +7,7 @@ import org.jsoup.nodes.Element;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class EuropaIsACoolMoon extends WebParser{
 
@@ -19,8 +20,8 @@ public class EuropaIsACoolMoon extends WebParser{
     public static final String Like_This = "Like this:";
 
     public static final String Like_Loading = "Like Loading... ";
-    public EuropaIsACoolMoon(String host) {
-        super(host);
+    public EuropaIsACoolMoon(String host, Set<String> blocked) {
+        super(host, blocked);
         unwanteds.addAll(Arrays.asList(AUTHOR, Previous_Toc, Share, Twitter, FaceBook, Like_This, Like_Loading));
     }
 

@@ -5,12 +5,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.util.List;
+import java.util.Set;
 
 public class MTLReaderWebParser extends WebParser{
 
 
-    public MTLReaderWebParser(String host) {
-        super(host);
+    public MTLReaderWebParser(String host, Set<String> blocked) {
+        super(host, blocked);
     }
 
     @Override

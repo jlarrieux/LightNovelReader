@@ -27,10 +27,12 @@ import android.view.View;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.DialogFragment;
 
-import com.jeannius.lightnovelreader.DialogFragment.FreeWebNovelSynonymsDialogFragment;
+import com.jeannius.lightnovelreader.DialogFragment.StringSet.BlockedStringDialogFragment;
+import com.jeannius.lightnovelreader.DialogFragment.StringSet.FreeWebNovelSynonymsDialogFragment;
 import com.jeannius.lightnovelreader.DialogFragment.NovelDialogFragment;
 import com.jeannius.lightnovelreader.DialogFragment.ParserDialogFragment;
-import com.jeannius.lightnovelreader.Interface.OnFreeWebNovelSynonymsUpdated;
+import com.jeannius.lightnovelreader.Interface.OnBlockedStringSetUpdated;
+import com.jeannius.lightnovelreader.Interface.OnFreeWebNovelSynonymSetUpdated;
 import com.jeannius.lightnovelreader.Interface.OnNovelSelectedListener;
 import com.jeannius.lightnovelreader.databinding.ActivityMainBinding;
 import com.jeannius.lightnovelreader.webparser.WebParserResponse;
@@ -40,18 +42,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 // MUST USE STRINGBUFFER!!!
-public class MainActivity extends AppCompatActivity implements OnNovelSelectedListener, OnFreeWebNovelSynonymsUpdated {
+public class MainActivity extends AppCompatActivity implements OnNovelSelectedListener, OnFreeWebNovelSynonymSetUpdated, OnBlockedStringSetUpdated {
 
     private static final String CURRENT_LINK_FILE_NAME = "currentLinkFileName";
     private static final String NEXT_LINK_FILE_NAME = "nextLinkFileName";
@@ -59,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
     private static final String NOVEL_MAP_FILE_NAME = "novelMapFileName";
 
     private static final String FREE_WEB_NOVEL_SYNONYMS = "freeWebNovelSynonyms";
+    private static final String BLOCKED_STRINGS = "blockedStrings";
 
     private String test = "https://noveltop.net/novel/birth-of-the-demonic-sword/chapter-2227-2227-respect/";
 
@@ -67,7 +67,8 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
     private EditText urlEditText;
     private EditText fullTextEditText;
     private Map<String, String> novelMap = new HashMap<>();
-    private Set<String> freeNovelSynonyms = new HashSet<>();// Arrays.asList("bednovel.com", "innread.com");
+    private Set<String> freeNovelSynonyms = new HashSet<>();
+    private Set<String> blockedStrings = new HashSet<>();
 
 
     TextToSpeech t1;
@@ -112,6 +113,9 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
                 break;
             case R.id.freeWebNovelSynonyms:
                 showFreeWebNovelSynonyms();
+                break;
+            case R.id.blockedStrings:
+                showBlockedStrings();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -177,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
             toastUser(String.format("%s is not a valid URL", url));
         }
 
-        CompletableFuture<WebParserResponse> future = new URLHandler().handleURL(url, freeNovelSynonyms);
+        CompletableFuture<WebParserResponse> future = new URLHandler().handleURL(url, freeNovelSynonyms, blockedStrings);
         future.thenAccept(webParserResponse -> {
 
             this.runOnUiThread(() -> {
@@ -292,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
     }
 
     private void showFreeWebNovelSynonyms(){
-        DialogFragment newFragment = new FreeWebNovelSynonymsDialogFragment(FREE_WEB_NOVEL_SYNONYMS, this);
+        DialogFragment newFragment = new FreeWebNovelSynonymsDialogFragment(FREE_WEB_NOVEL_SYNONYMS, this, "Add a new synonym");
         newFragment.show(getSupportFragmentManager(), "FreeWebNovel Synonyms");
     }
 
@@ -304,6 +308,16 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
     @Override
     public void reloadSynonyms() {
         this.freeNovelSynonyms = loadSetFromLocal(FREE_WEB_NOVEL_SYNONYMS, getApplicationContext());
+    }
+
+    private void showBlockedStrings(){
+        DialogFragment newFragment = new BlockedStringDialogFragment(BLOCKED_STRINGS, this, "Add a new blocked string");
+        newFragment.show(getSupportFragmentManager(), "Blocked Strings");
+    }
+
+    @Override
+    public void reloadBlockedStrings() {
+        this.blockedStrings = loadSetFromLocal(BLOCKED_STRINGS, getApplicationContext());
     }
 }
 

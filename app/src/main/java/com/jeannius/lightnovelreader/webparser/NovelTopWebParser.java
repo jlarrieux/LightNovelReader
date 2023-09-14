@@ -4,10 +4,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.util.List;
+import java.util.Set;
 
 public class NovelTopWebParser extends WebParser {
-    public NovelTopWebParser(String host) {
-        super(host);
+    public NovelTopWebParser(String host, Set<String> blocked) {
+        super(host, blocked);
     }
 
     @Override

@@ -6,10 +6,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.util.List;
+import java.util.Set;
 
 public class FreeWebNovel extends WebParser {
-    public FreeWebNovel(String host) {
-        super(host);
+    public FreeWebNovel(String host, Set<String> blocked) {
+        super(host, blocked);
     }
 
     @Override

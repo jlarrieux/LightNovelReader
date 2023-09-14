@@ -5,13 +5,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RoyalRoadWebParser extends WebParser{
 
-    public RoyalRoadWebParser(String host){
-        super(host);
+    public RoyalRoadWebParser(String host, Set<String> blocked){
+        super(host, blocked);
     }
 
     @Override

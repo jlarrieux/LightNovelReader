@@ -1,7 +1,5 @@
-package com.jeannius.lightnovelreader.DialogFragment;
+package com.jeannius.lightnovelreader.DialogFragment.StringSet;
 
-
-import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -10,47 +8,48 @@ import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.jeannius.lightnovelreader.CustomAdapter;
-import com.jeannius.lightnovelreader.Interface.OnFreeWebNovelSynonymsUpdated;
 import com.jeannius.lightnovelreader.JeanniusLogger;
 import com.jeannius.lightnovelreader.SaverLoaderUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
-public class FreeWebNovelSynonymsDialogFragment extends DialogFragment {
+public abstract class StringSetDialogFragment extends DialogFragment {
 
-    private final String SYNONYMS_SET_FILENAME;
-    private OnFreeWebNovelSynonymsUpdated onFreeWebNovelSynonymsUpdated;
+    private final String FILENAME;
+    private final String POSITIVE_DIALOG_TITLE;
 
-    public FreeWebNovelSynonymsDialogFragment(String synonymsSetFileName, OnFreeWebNovelSynonymsUpdated onFreeWebNovelSynonymsUpdated){
-        this.SYNONYMS_SET_FILENAME = synonymsSetFileName;
-        this.onFreeWebNovelSynonymsUpdated = onFreeWebNovelSynonymsUpdated;
+    public abstract void reload();
+
+    protected StringSetDialogFragment(String filename, String positiveDialogTitle){
+        this.FILENAME = filename;
+        this.POSITIVE_DIALOG_TITLE = positiveDialogTitle;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState){
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-        Set<String> freeWebNovelSynonyms = SaverLoaderUtils.loadSetFromLocal(SYNONYMS_SET_FILENAME, getContext());
-        JeanniusLogger.log("FreeWebNovelsSynonyms" , freeWebNovelSynonyms.toString());
-        builder.setTitle("FreeWebNovel Synonyms");
+        Set<String> stringSet = SaverLoaderUtils.loadSetFromLocal(FILENAME, getContext());
+        JeanniusLogger.log(FILENAME , stringSet.toString());
+        builder.setTitle(FILENAME);
         List<String> items = new ArrayList<>();
-        if(!freeWebNovelSynonyms.isEmpty()){
-            items = new ArrayList<>(freeWebNovelSynonyms);
+        if(!stringSet.isEmpty()){
+            items = new ArrayList<>(stringSet);
         }
         CustomAdapter adapter = new CustomAdapter(getContext(), items);
         ListView listView = new ListView(getContext());
         listView.setAdapter(adapter);
         builder.setView(listView);
         setNegativeButton(builder);
-        setPositiveButton(builder, freeWebNovelSynonyms, items, adapter);
-        if(!freeWebNovelSynonyms.isEmpty()){
-            setItemLongClickListener(listView, freeWebNovelSynonyms, items);
+        setPositiveButton(builder, stringSet, items, adapter);
+        if(!stringSet.isEmpty()){
+            setItemLongClickListener(listView, stringSet, items);
         }
         return builder.create();
     }
@@ -60,22 +59,22 @@ public class FreeWebNovelSynonymsDialogFragment extends DialogFragment {
     }
 
     private void setPositiveButton(AlertDialog.Builder builder,
-                                   Set<String> freeWebNovelSynonyms,
+                                   Set<String> stringSet,
                                    List<String> items,
                                    CustomAdapter adapter){
         builder.setPositiveButton("Add", (dialog, which) -> {
             Context context = requireContext();
             EditText input = new EditText(context);
             new AlertDialog.Builder(context)
-                    .setTitle("Add a new synonym")
+                    .setTitle(POSITIVE_DIALOG_TITLE)
                     .setView(input)
                     .setPositiveButton("OK", (dialog1, which1) -> {
                         String newItem = input.getText().toString();
-                        freeWebNovelSynonyms.add(newItem);
-                        SaverLoaderUtils.saveLocally(freeWebNovelSynonyms, SYNONYMS_SET_FILENAME, context );
+                        stringSet.add(newItem);
+                        SaverLoaderUtils.saveLocally(stringSet, FILENAME, context );
                         items.add(newItem);
                         adapter.notifyDataSetChanged();
-                        onFreeWebNovelSynonymsUpdated.reloadSynonyms();
+                        reload();
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
@@ -92,8 +91,8 @@ public class FreeWebNovelSynonymsDialogFragment extends DialogFragment {
 
             confirmDeletion.setPositiveButton("Delete", (dialog, which) -> {
                 set.remove(items.get(position));
-                SaverLoaderUtils.saveLocally(set, SYNONYMS_SET_FILENAME, parent.getContext());
-                onFreeWebNovelSynonymsUpdated.reloadSynonyms();
+                SaverLoaderUtils.saveLocally(set, FILENAME, parent.getContext());
+                reload();
                 dismiss();
             });
 

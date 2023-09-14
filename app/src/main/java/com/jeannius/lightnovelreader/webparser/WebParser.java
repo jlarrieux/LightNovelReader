@@ -3,6 +3,7 @@ package com.jeannius.lightnovelreader.webparser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,8 +30,11 @@ public abstract class WebParser {
     protected List<String> unwanteds = new ArrayList<>();
     protected String CHAPTER_CONTENT_CLASS = "chapter-content";
 
-    protected WebParser(String host) {
+    protected Set<String> blockedStrings;
+
+    protected WebParser(String host, Set<String> blockedStrings) {
         this.host = host;
+        this.blockedStrings = blockedStrings;
     }
 
     public StringBuffer parseDocument(Document doc) {
@@ -57,6 +61,13 @@ public abstract class WebParser {
     protected StringBuffer removeUnwanted(StringBuffer text) {
         for (String unwant : unwanteds) {
             text = new StringBuffer(text.toString().replace(unwant, ""));
+        }
+        return removeBlockedStrings(text);
+    }
+
+    private StringBuffer removeBlockedStrings(StringBuffer text){
+        for(String blocked: blockedStrings){
+            text = new StringBuffer(text.toString().replace(blocked, ""));
         }
         return text;
     }
