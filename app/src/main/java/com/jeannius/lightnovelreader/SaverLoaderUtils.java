@@ -11,7 +11,9 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SaverLoaderUtils {
@@ -19,7 +21,7 @@ public class SaverLoaderUtils {
     public static HashMap<String, String> loadNovelMapFromLocal(String fileName, Context context){
         try (FileInputStream fis = context.openFileInput(fileName);
              ObjectInputStream ois =  new ObjectInputStream(fis)) {
-            return  (HashMap) ois.readObject();
+            return  (HashMap<String, String>) ois.readObject();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -28,6 +30,20 @@ public class SaverLoaderUtils {
             e.printStackTrace();
         }
         return new HashMap<>();
+    }
+
+    public static List<String> loadListFromLocal(String fileName, Context context){
+        try (FileInputStream fis = context.openFileInput(fileName);
+             ObjectInputStream ois =  new ObjectInputStream(fis)) {
+            return  (List<String>) ois.readObject();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 
     public static String loadFromLocal(String filename, Context context){
@@ -65,6 +81,18 @@ public class SaverLoaderUtils {
         try (FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE)) {
             fos.write(value.getBytes(StandardCharsets.UTF_8));
         }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveLocally(List<String> list, String filename, Context context){
+        try(FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos)){
+            oos.writeObject(list);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

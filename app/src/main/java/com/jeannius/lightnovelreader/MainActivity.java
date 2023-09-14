@@ -36,7 +36,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -56,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText urlEditText;
     private EditText fullTextEditText;
     private Map<String, String> novelMap = new HashMap<>();
+    private List<String> freeNovelSynonyms = Arrays.asList("bednovel.com", "innread.com");
 
 
     TextToSpeech t1;
@@ -161,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             toastUser(String.format("%s is not a valid URL", url));
         }
 
-        CompletableFuture<WebParserResponse> future = new URLHandler().handleURL(url);
+        CompletableFuture<WebParserResponse> future = new URLHandler().handleURL(url, freeNovelSynonyms);
         future.thenAccept(webParserResponse -> {
 
             this.runOnUiThread(() -> {

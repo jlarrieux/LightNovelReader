@@ -17,6 +17,7 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +30,7 @@ import okhttp3.ResponseBody;
 
 public class URLHandler {
 
-    public CompletableFuture<WebParserResponse> handleURL(String url) {
+    public CompletableFuture<WebParserResponse> handleURL(String url, List<String> freeWebNovelSynonyms) {
         Request request = new Request.Builder().url(url).build();
 
         // set timeouts when creating the OkHttpClient
@@ -79,11 +80,14 @@ public class URLHandler {
                         case WebParser.EUROPA_IS_A_COOL_M0ON:
                             webParser = new EuropaIsACoolMoon(host);
                             break;
-                        case WebParser.INN_READ:
                         case WebParser.FREE_WEBNOVEL:
                             webParser = new FreeWebNovel(host);
                             break;
                         default:
+                            if(freeWebNovelSynonyms.contains(host)){
+                                webParser = new FreeWebNovel(host);
+                                break;
+                            }
                             String message = String.format("No Jeannius parser found for url: %s",host);
                             throw new Exception(message);
                     }
@@ -122,4 +126,5 @@ public class URLHandler {
     private void saveAll(){
 
     }
+
 }
