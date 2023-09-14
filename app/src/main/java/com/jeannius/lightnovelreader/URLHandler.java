@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -30,7 +31,7 @@ import okhttp3.ResponseBody;
 
 public class URLHandler {
 
-    public CompletableFuture<WebParserResponse> handleURL(String url, List<String> freeWebNovelSynonyms) {
+    public CompletableFuture<WebParserResponse> handleURL(String url, Set<String> freeWebNovelSynonyms) {
         Request request = new Request.Builder().url(url).build();
 
         // set timeouts when creating the OkHttpClient

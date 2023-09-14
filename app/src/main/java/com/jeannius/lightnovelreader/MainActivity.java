@@ -3,6 +3,7 @@ package com.jeannius.lightnovelreader;
 
 import static com.jeannius.lightnovelreader.SaverLoaderUtils.loadFromLocal;
 import static com.jeannius.lightnovelreader.SaverLoaderUtils.loadNovelMapFromLocal;
+import static com.jeannius.lightnovelreader.SaverLoaderUtils.loadSetFromLocal;
 import static com.jeannius.lightnovelreader.SaverLoaderUtils.saveLocally;
 
 
@@ -26,8 +27,11 @@ import android.view.View;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.DialogFragment;
 
+import com.jeannius.lightnovelreader.DialogFragment.FreeWebNovelSynonymsDialogFragment;
 import com.jeannius.lightnovelreader.DialogFragment.NovelDialogFragment;
 import com.jeannius.lightnovelreader.DialogFragment.ParserDialogFragment;
+import com.jeannius.lightnovelreader.Interface.OnFreeWebNovelSynonymsUpdated;
+import com.jeannius.lightnovelreader.Interface.OnNovelSelectedListener;
 import com.jeannius.lightnovelreader.databinding.ActivityMainBinding;
 import com.jeannius.lightnovelreader.webparser.WebParserResponse;
 
@@ -39,18 +43,22 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 // MUST USE STRINGBUFFER!!!
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnNovelSelectedListener, OnFreeWebNovelSynonymsUpdated {
 
     private static final String CURRENT_LINK_FILE_NAME = "currentLinkFileName";
     private static final String NEXT_LINK_FILE_NAME = "nextLinkFileName";
     private static final String PREVIOUS_LINK_FILE_NAME = "previousLinkFileName";
     private static final String NOVEL_MAP_FILE_NAME = "novelMapFileName";
+
+    private static final String FREE_WEB_NOVEL_SYNONYMS = "freeWebNovelSynonyms";
 
     private String test = "https://noveltop.net/novel/birth-of-the-demonic-sword/chapter-2227-2227-respect/";
 
@@ -59,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText urlEditText;
     private EditText fullTextEditText;
     private Map<String, String> novelMap = new HashMap<>();
-    private List<String> freeNovelSynonyms = Arrays.asList("bednovel.com", "innread.com");
+    private Set<String> freeNovelSynonyms = new HashSet<>();// Arrays.asList("bednovel.com", "innread.com");
 
 
     TextToSpeech t1;
@@ -101,6 +109,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.novelList:
                 showNovels();
+                break;
+            case R.id.freeWebNovelSynonyms:
+                showFreeWebNovelSynonyms();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -152,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
         nextLink = loadFromLocal(NEXT_LINK_FILE_NAME, getApplicationContext());
         previousLink = loadFromLocal(PREVIOUS_LINK_FILE_NAME, getApplicationContext());
         novelMap = loadNovelMapFromLocal(NOVEL_MAP_FILE_NAME, getApplicationContext());
+        freeNovelSynonyms = loadSetFromLocal(FREE_WEB_NOVEL_SYNONYMS, getApplicationContext());
     }
 
     private void getTextFromWeb() {
@@ -269,8 +281,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showNovels() {
-        DialogFragment newFragment = new NovelDialogFragment(NOVEL_MAP_FILE_NAME, urlEditText, fullTextEditText);
+        DialogFragment newFragment = new NovelDialogFragment(NOVEL_MAP_FILE_NAME, this);
         newFragment.show(getSupportFragmentManager(), "Novels");
+    }
+
+    @Override
+    public void onNovelSelected(String url, String fullText) {
+        urlEditText.setText(url);
+        fullTextEditText.setText(fullText);
+    }
+
+    private void showFreeWebNovelSynonyms(){
+        DialogFragment newFragment = new FreeWebNovelSynonymsDialogFragment(FREE_WEB_NOVEL_SYNONYMS, this);
+        newFragment.show(getSupportFragmentManager(), "FreeWebNovel Synonyms");
     }
 
     private void saveTitleCurrentLink(String title, String currentLink) {
@@ -278,6 +301,10 @@ public class MainActivity extends AppCompatActivity {
         saveLocally(novelMap, NOVEL_MAP_FILE_NAME, getApplicationContext());
     }
 
+    @Override
+    public void reloadSynonyms() {
+        this.freeNovelSynonyms = loadSetFromLocal(FREE_WEB_NOVEL_SYNONYMS, getApplicationContext());
+    }
 }
 
 

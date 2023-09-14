@@ -4,5 +4,7 @@
         android:title="Parser list"/>
     <item android:id="@+id/novelList"
         android:title="Novel List"/>
+    <item android:id="@+id/freeWebNovelSynonyms"
+        android:title="FreeWebNovel Synonyms"/>
 
 </menu>

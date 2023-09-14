@@ -13,8 +13,10 @@ import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SaverLoaderUtils {
 
@@ -32,10 +34,10 @@ public class SaverLoaderUtils {
         return new HashMap<>();
     }
 
-    public static List<String> loadListFromLocal(String fileName, Context context){
+    public static Set<String> loadSetFromLocal(String fileName, Context context){
         try (FileInputStream fis = context.openFileInput(fileName);
              ObjectInputStream ois =  new ObjectInputStream(fis)) {
-            return  (List<String>) ois.readObject();
+            return  (Set<String>) ois.readObject();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -43,7 +45,7 @@ public class SaverLoaderUtils {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return new ArrayList<>();
+        return new HashSet<>();
     }
 
     public static String loadFromLocal(String filename, Context context){
@@ -85,7 +87,7 @@ public class SaverLoaderUtils {
         }
     }
 
-    public static void saveLocally(List<String> list, String filename, Context context){
+    public static void saveLocally(Set<String> list, String filename, Context context){
         try(FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
             ObjectOutputStream oos = new ObjectOutputStream(fos)){
             oos.writeObject(list);
