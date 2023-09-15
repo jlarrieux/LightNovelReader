@@ -7,8 +7,15 @@ import static com.jeannius.lightnovelreader.SaverLoaderUtils.loadSetFromLocal;
 import static com.jeannius.lightnovelreader.SaverLoaderUtils.saveLocally;
 
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResult;
@@ -24,7 +31,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.jeannius.lightnovelreader.DialogFragment.StringSet.BlockedStringDialogFragment;
@@ -60,6 +70,14 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
     private static final String FREE_WEB_NOVEL_SYNONYMS = "freeWebNovelSynonyms";
     private static final String BLOCKED_STRINGS = "blockedStrings";
 
+    private static final String ACTION_NEXT = "ACTION_NEXT";
+    private static final String ACTION_PREVIOUS = "ACTION_PREVIOUS";
+
+    private static final String CHANNEL_ID = "com.jeannius.lightnovelreader.CHANNEL_ID";
+
+    private static final int NOTIFICATION_ID = 1;
+    private static final int REQUEST_POST_NOTIFICATION = 112;
+
     private String test = "https://noveltop.net/novel/birth-of-the-demonic-sword/chapter-2227-2227-respect/";
 
     private ActivityMainBinding binding;
@@ -93,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
         init();
+        createNotificationChannel();
+        createNotification();
     }
 
     @Override
@@ -209,8 +229,8 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
                 titleAndHost = webParserResponse.getTitleAndHost();
                 if (titleAndHost != null && !titleAndHost.isEmpty()) {
                     JeanniusLogger.log("Jeannius title not empty: " + titleAndHost);
-                    JeanniusLogger.log("Jeannius saving: " + currentLink.toString());
-                    saveTitleCurrentLink(titleAndHost, currentLink.toString());
+                    JeanniusLogger.log("Jeannius saving: " + currentLink);
+                    saveTitleCurrentLink(titleAndHost, currentLink);
                 } else {
                     JeanniusLogger.log("jeannius!!! title is empty");
                 }
@@ -236,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
 
             });
 
-        }).exceptionally( ex -> {
+        }).exceptionally(ex -> {
             runOnUiThread(() -> {
                 toastUser(ex.getMessage());
             });
@@ -254,8 +274,8 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
         if (nextLink == null || nextLink.length() == 0) {
             toastUser("No next link");
         } else {
-            urlEditText.setText(nextLink.toString());
-            JeanniusLogger.log(nextLink.toString());
+            urlEditText.setText(nextLink);
+            JeanniusLogger.log("nextLink", nextLink);
             getTextFromWeb();
         }
     }
@@ -264,8 +284,8 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
         if (previousLink == null || previousLink.length() == 0) {
             toastUser("No previous link");
         } else {
-            urlEditText.setText(previousLink.toString());
-            JeanniusLogger.log(previousLink.toString());
+            urlEditText.setText(previousLink);
+            JeanniusLogger.log("previousLink", previousLink);
             getTextFromWeb();
         }
     }
@@ -295,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
         fullTextEditText.setText(fullText);
     }
 
-    private void showFreeWebNovelSynonyms(){
+    private void showFreeWebNovelSynonyms() {
         DialogFragment newFragment = new FreeWebNovelSynonymsDialogFragment(FREE_WEB_NOVEL_SYNONYMS, this, "Add a new synonym");
         newFragment.show(getSupportFragmentManager(), "FreeWebNovel Synonyms");
     }
@@ -310,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
         this.freeNovelSynonyms = loadSetFromLocal(FREE_WEB_NOVEL_SYNONYMS, getApplicationContext());
     }
 
-    private void showBlockedStrings(){
+    private void showBlockedStrings() {
         DialogFragment newFragment = new BlockedStringDialogFragment(BLOCKED_STRINGS, this, "Add a new blocked string");
         newFragment.show(getSupportFragmentManager(), "Blocked Strings");
     }
@@ -318,6 +338,68 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
     @Override
     public void reloadBlockedStrings() {
         this.blockedStrings = loadSetFromLocal(BLOCKED_STRINGS, getApplicationContext());
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void createNotification() {
+        Intent nextIntent = new Intent(this, MainActivity.class);
+        nextIntent.setAction(ACTION_NEXT);
+        PendingIntent nextPendingIntent = PendingIntent.getActivity(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        Intent prevIntent = new Intent(this, MainActivity.class);
+        prevIntent.setAction(ACTION_PREVIOUS);
+        PendingIntent prevPendingIntent = PendingIntent.getActivity(this, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.twotone_shield_moon_24_8936a5)
+//                .setContentTitle("LightNovelReader")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .addAction(R.drawable.baseline_arrow_back_24, "Previous", prevPendingIntent)
+                .addAction(R.drawable.baseline_arrow_forward_24, "Next", nextPendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        switch (intent.getAction()){
+            case ACTION_NEXT:
+                JeanniusLogger.log("notification", "executing next");
+                executeNext();
+                break;
+            case ACTION_PREVIOUS:
+                JeanniusLogger.log("notification", "executing previous");
+                executePrevious();
+                break;
+            default:
+                throw new RuntimeException("Unknown action in notification intent");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == REQUEST_POST_NOTIFICATION) {
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                toastUser("Permission granted!");
+            }
+        }
     }
 }
 
