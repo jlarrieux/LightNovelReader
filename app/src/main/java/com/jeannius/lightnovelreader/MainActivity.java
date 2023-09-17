@@ -7,7 +7,6 @@ import static com.jeannius.lightnovelreader.SaverLoaderUtils.loadSetFromLocal;
 import static com.jeannius.lightnovelreader.SaverLoaderUtils.saveLocally;
 
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -31,7 +30,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -41,14 +39,15 @@ import com.jeannius.lightnovelreader.DialogFragment.StringSet.BlockedStringDialo
 import com.jeannius.lightnovelreader.DialogFragment.StringSet.FreeWebNovelSynonymsDialogFragment;
 import com.jeannius.lightnovelreader.DialogFragment.NovelDialogFragment;
 import com.jeannius.lightnovelreader.DialogFragment.ParserDialogFragment;
-import com.jeannius.lightnovelreader.Interface.OnBlockedStringSetUpdated;
-import com.jeannius.lightnovelreader.Interface.OnFreeWebNovelSynonymSetUpdated;
-import com.jeannius.lightnovelreader.Interface.OnNovelSelectedListener;
+import com.jeannius.lightnovelreader.Interface.OnBlockedStringSetUpdatedListener;
+import com.jeannius.lightnovelreader.Interface.OnFreeWebNovelSynonymSetUpdatedListener;
+import com.jeannius.lightnovelreader.Interface.NovelListActionListener;
 import com.jeannius.lightnovelreader.databinding.ActivityMainBinding;
 import com.jeannius.lightnovelreader.webparser.WebParserResponse;
 
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import java.net.URL;
@@ -60,7 +59,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 // MUST USE STRINGBUFFER!!!
-public class MainActivity extends AppCompatActivity implements OnNovelSelectedListener, OnFreeWebNovelSynonymSetUpdated, OnBlockedStringSetUpdated {
+public class MainActivity extends AppCompatActivity implements NovelListActionListener, OnFreeWebNovelSynonymSetUpdatedListener, OnBlockedStringSetUpdatedListener {
 
     private static final String CURRENT_LINK_FILE_NAME = "currentLinkFileName";
     private static final String NEXT_LINK_FILE_NAME = "nextLinkFileName";
@@ -77,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
 
     private static final int NOTIFICATION_ID = 1;
     private static final int REQUEST_POST_NOTIFICATION = 112;
+    protected static final String LIGHT_NOVEL_READER = "Light Novel Reader";
 
     private String test = "https://noveltop.net/novel/birth-of-the-demonic-sword/chapter-2227-2227-respect/";
 
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
     private EditText fullTextEditText;
     private Map<String, String> novelMap = new HashMap<>();
     private Set<String> freeNovelSynonyms = new HashSet<>();
-    private Set<String> blockedStrings = new HashSet<>();
+    private Set<String> blockedStringsSet = new HashSet<>();
 
 
     TextToSpeech t1;
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
             toastUser(String.format("%s is not a valid URL", url));
         }
 
-        CompletableFuture<WebParserResponse> future = new URLHandler().handleURL(url, freeNovelSynonyms, blockedStrings);
+        CompletableFuture<WebParserResponse> future = new URLHandler().handleURL(url, freeNovelSynonyms, blockedStringsSet);
         future.thenAccept(webParserResponse -> {
 
             this.runOnUiThread(() -> {
@@ -337,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
 
     @Override
     public void reloadBlockedStrings() {
-        this.blockedStrings = loadSetFromLocal(BLOCKED_STRINGS, getApplicationContext());
+        this.blockedStringsSet = loadSetFromLocal(BLOCKED_STRINGS, getApplicationContext());
     }
 
     private void createNotificationChannel() {
@@ -362,18 +362,25 @@ public class MainActivity extends AppCompatActivity implements OnNovelSelectedLi
         prevIntent.setAction(ACTION_PREVIOUS);
         PendingIntent prevPendingIntent = PendingIntent.getActivity(this, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
+        // Use a custom layout for the notification
+        RemoteViews collapsedView = new RemoteViews(getPackageName(), R.layout.notification_layout);
+        collapsedView.setOnClickPendingIntent(R.id.next_button, nextPendingIntent);
+        collapsedView.setOnClickPendingIntent(R.id.prev_button, prevPendingIntent);
+        collapsedView.setTextViewText(R.id.notification_title, LIGHT_NOVEL_READER);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.twotone_shield_moon_24_8936a5)
-//                .setContentTitle("LightNovelReader")
+                .setSmallIcon(R.drawable.blurry_jean)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .addAction(R.drawable.baseline_arrow_back_24, "Previous", prevPendingIntent)
-                .addAction(R.drawable.baseline_arrow_forward_24, "Next", nextPendingIntent)
+                .setCustomContentView(collapsedView) // Use setCustomContentView for collapsed view
+//                .setCustomBigContentView(expandedView)
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                 .setAutoCancel(true);
-
+//
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
+
+
 
     @Override
     protected void onNewIntent(Intent intent) {

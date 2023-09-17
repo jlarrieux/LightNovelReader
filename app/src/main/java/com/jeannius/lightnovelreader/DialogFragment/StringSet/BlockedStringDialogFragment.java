@@ -1,13 +1,12 @@
 package com.jeannius.lightnovelreader.DialogFragment.StringSet;
 
-import com.jeannius.lightnovelreader.Interface.OnBlockedStringSetUpdated;
-import com.jeannius.lightnovelreader.Interface.OnFreeWebNovelSynonymSetUpdated;
+import com.jeannius.lightnovelreader.Interface.OnBlockedStringSetUpdatedListener;
 
 public class BlockedStringDialogFragment extends StringSetDialogFragment{
 
-    private OnBlockedStringSetUpdated onBlockedStringSetUpdated;
+    private OnBlockedStringSetUpdatedListener onBlockedStringSetUpdated;
 
-    public BlockedStringDialogFragment(String filename, OnBlockedStringSetUpdated onBlockedStringSetUpdated, String positiveDialogTitle) {
+    public BlockedStringDialogFragment(String filename, OnBlockedStringSetUpdatedListener onBlockedStringSetUpdated, String positiveDialogTitle) {
         super(filename,  positiveDialogTitle);
         this.onBlockedStringSetUpdated = onBlockedStringSetUpdated;
     }

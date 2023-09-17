@@ -10,22 +10,23 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import com.jeannius.lightnovelreader.Interface.OnNovelSelectedListener;
+import com.jeannius.lightnovelreader.Interface.NovelListActionListener;
 import com.jeannius.lightnovelreader.JeanniusLogger;
 import com.jeannius.lightnovelreader.SaverLoaderUtils;
 import com.jeannius.lightnovelreader.CustomAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 public class NovelDialogFragment extends DialogFragment {
     private String novelMapFilename;
-    private OnNovelSelectedListener listener;
+    private NovelListActionListener listener;
 
 
 
-    public NovelDialogFragment(String novelMapFilename, OnNovelSelectedListener listener) {
+    public NovelDialogFragment(String novelMapFilename, NovelListActionListener listener) {
         this.novelMapFilename = novelMapFilename;
         this.listener = listener;
     }
@@ -39,6 +40,7 @@ public class NovelDialogFragment extends DialogFragment {
         builder.setTitle("Novel Maps");
         if (!novelMap.isEmpty()) {
             List<String> items = new ArrayList<>(novelMap.keySet());
+            Collections.sort(items);
             CustomAdapter adapter = new CustomAdapter(getContext(), items);
             ListView listView = new ListView(getContext());
             listView.setAdapter(adapter);

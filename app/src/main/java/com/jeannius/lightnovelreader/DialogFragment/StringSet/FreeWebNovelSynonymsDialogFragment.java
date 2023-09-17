@@ -1,19 +1,19 @@
 package com.jeannius.lightnovelreader.DialogFragment.StringSet;
 
 
-import com.jeannius.lightnovelreader.Interface.OnFreeWebNovelSynonymSetUpdated;
+import com.jeannius.lightnovelreader.Interface.OnFreeWebNovelSynonymSetUpdatedListener;
 
 public class FreeWebNovelSynonymsDialogFragment extends StringSetDialogFragment {
 
-    private OnFreeWebNovelSynonymSetUpdated onFreeWebNovelSynonymSetUpdated;
+    private OnFreeWebNovelSynonymSetUpdatedListener onFreeWebNovelSynonymSetUpdatedListener;
 
-    public FreeWebNovelSynonymsDialogFragment(String filename, OnFreeWebNovelSynonymSetUpdated onFreeWebNovelSynonymSetUpdated, String positiveDialogTitle) {
+    public FreeWebNovelSynonymsDialogFragment(String filename, OnFreeWebNovelSynonymSetUpdatedListener onFreeWebNovelSynonymSetUpdatedListener, String positiveDialogTitle) {
         super(filename,  positiveDialogTitle);
-        this.onFreeWebNovelSynonymSetUpdated = onFreeWebNovelSynonymSetUpdated;
+        this.onFreeWebNovelSynonymSetUpdatedListener = onFreeWebNovelSynonymSetUpdatedListener;
     }
 
     @Override
     public void reload() {
-        this.onFreeWebNovelSynonymSetUpdated.reloadSynonyms();
+        this.onFreeWebNovelSynonymSetUpdatedListener.reloadSynonyms();
     }
 }
