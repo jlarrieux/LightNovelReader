@@ -369,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements NovelListActionLi
         collapsedView.setTextViewText(R.id.notification_title, LIGHT_NOVEL_READER);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.blurry_jean)
+                .setSmallIcon(R.drawable.a3)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setCustomContentView(collapsedView) // Use setCustomContentView for collapsed view
 //                .setCustomBigContentView(expandedView)
