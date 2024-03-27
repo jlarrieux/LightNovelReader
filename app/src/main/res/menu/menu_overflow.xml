@@ -8,5 +8,7 @@
         android:title="FreeWebNovel Synonyms"/>
     <item android:id="@+id/blockedStrings"
         android:title="Blocked Strings"/>
+    <item android:id="@+id/version"
+        android:title="Version" />
 
 </menu>

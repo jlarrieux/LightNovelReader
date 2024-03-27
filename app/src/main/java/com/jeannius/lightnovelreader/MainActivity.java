@@ -35,6 +35,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.DialogFragment;
 
+import com.jeannius.lightnovelreader.DialogFragment.SimpleDialogFragment;
 import com.jeannius.lightnovelreader.DialogFragment.StringSet.BlockedStringDialogFragment;
 import com.jeannius.lightnovelreader.DialogFragment.StringSet.FreeWebNovelSynonymsDialogFragment;
 import com.jeannius.lightnovelreader.DialogFragment.NovelDialogFragment;
@@ -137,14 +138,17 @@ public class MainActivity extends AppCompatActivity implements NovelListActionLi
             case R.id.blockedStrings:
                 showBlockedStrings();
                 break;
+            case R.id.version:
+                showVersion();
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
         return true;
     }
 
-    // Private methods
 
+    // Private methods
     private void init() {
         ttsUtteranceListener = new TtsUtteranceListener();
         urlEditText = findViewById(R.id.url);
@@ -299,6 +303,7 @@ public class MainActivity extends AppCompatActivity implements NovelListActionLi
         }
     }
 
+    // MENU STUFF
     private void showParsers() {
         DialogFragment newFragment = new ParserDialogFragment();
         newFragment.show(getSupportFragmentManager(), "Parsers");
@@ -309,15 +314,30 @@ public class MainActivity extends AppCompatActivity implements NovelListActionLi
         newFragment.show(getSupportFragmentManager(), "Novels");
     }
 
+    private void showFreeWebNovelSynonyms() {
+        DialogFragment newFragment = new FreeWebNovelSynonymsDialogFragment(FREE_WEB_NOVEL_SYNONYMS, this, "Add a new synonym");
+        newFragment.show(getSupportFragmentManager(), "FreeWebNovel Synonyms");
+    }
+
+    private void showBlockedStrings() {
+        DialogFragment newFragment = new BlockedStringDialogFragment(BLOCKED_STRINGS, this, "Add a new blocked string");
+        newFragment.show(getSupportFragmentManager(), "Blocked Strings");
+    }
+
+    private void showVersion() {
+        try {
+            String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            SimpleDialogFragment newFragment = new SimpleDialogFragment("Version", version);
+            newFragment.show(getSupportFragmentManager(), "Jeannius");
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void onNovelSelected(String url, String fullText) {
         urlEditText.setText(url);
         fullTextEditText.setText(fullText);
-    }
-
-    private void showFreeWebNovelSynonyms() {
-        DialogFragment newFragment = new FreeWebNovelSynonymsDialogFragment(FREE_WEB_NOVEL_SYNONYMS, this, "Add a new synonym");
-        newFragment.show(getSupportFragmentManager(), "FreeWebNovel Synonyms");
     }
 
     private void saveTitleCurrentLink(String title, String currentLink) {
@@ -328,11 +348,6 @@ public class MainActivity extends AppCompatActivity implements NovelListActionLi
     @Override
     public void reloadSynonyms() {
         this.freeNovelSynonyms = loadSetFromLocal(FREE_WEB_NOVEL_SYNONYMS, getApplicationContext());
-    }
-
-    private void showBlockedStrings() {
-        DialogFragment newFragment = new BlockedStringDialogFragment(BLOCKED_STRINGS, this, "Add a new blocked string");
-        newFragment.show(getSupportFragmentManager(), "Blocked Strings");
     }
 
     @Override

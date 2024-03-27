@@ -1,0 +1,51 @@
+package com.jeannius.lightnovelreader;
+
+import com.jeannius.lightnovelreader.URLHandler;
+import com.jeannius.lightnovelreader.webparser.WebParserResponse;
+
+import java.io.PrintWriter;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+
+public class SideThing {
+
+    static int margin = 30;
+    static String CHAPTER_SPACING = "\n\n\n";
+    static int NUMBER_OF_CHAPTERS= 7;
+
+    public void red() throws Exception{
+        String url = "https://bednovel.com/bednovel/chrysalis-72234/ch420";
+
+        URLHandler handler = new URLHandler();
+        CompletableFuture<WebParserResponse> originalFuture = handler.handleURL(url, Set.of(""), Set.of(""));
+        WebParserResponse response = get(originalFuture);
+
+
+        int i =0;
+        StringBuilder b = new StringBuilder(response.chapterTitle+ CHAPTER_SPACING);
+        b.append(response.text);
+
+        while(i<NUMBER_OF_CHAPTERS){
+            url = response.next;
+            if(url == null){
+                break;
+            }
+            originalFuture = handler.handleURL(url, Set.of(""), Set.of(""));
+            response = get(originalFuture);
+            b.append(CHAPTER_SPACING + response.chapterTitle + CHAPTER_SPACING);
+            b.append(response.text);
+            i++;
+        }
+
+        try(PrintWriter pw = new PrintWriter(response.title.toString()+ " ~~ " +response.chapterTitle.toString() + ".txt")){
+            pw.write(b.toString());
+        }
+
+
+        System.out.println("PDF Created!");
+    }
+
+    private static WebParserResponse get(CompletableFuture<WebParserResponse> future){
+        return future.join();
+    }
+}
