@@ -204,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements NovelListActionLi
             JeanniusLogger.log("NOT VALID", url);
             toastUser(String.format("%s is not a valid URL", url));
         }
+        freeNovelSynonyms.add("freewebnovel.noveleast.com");
 
         CompletableFuture<WebParserResponse> future = new URLHandler().handleURL(url, freeNovelSynonyms, blockedStringsSet);
         future.thenAccept(webParserResponse -> {
