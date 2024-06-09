@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements NovelListActionLi
 
     private void getTextFromWeb() {
         String url = urlEditText.getText().toString();
-//        String url = "https://innread.com/novel/shadow-slave/chapter-990.html";
+//        String url = "https://freewebnovel.comenovel.com/lord-of-mysteries-2-circle-of-inevitability/chapter-1";
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
         }
@@ -205,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements NovelListActionLi
             toastUser(String.format("%s is not a valid URL", url));
         }
         freeNovelSynonyms.add("freewebnovel.noveleast.com");
+        freeNovelSynonyms.add("freewebnovel.comenovel.com");
 
         CompletableFuture<WebParserResponse> future = new URLHandler().handleURL(url, freeNovelSynonyms, blockedStringsSet);
         future.thenAccept(webParserResponse -> {
