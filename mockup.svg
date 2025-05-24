@@ -1,0 +1,90 @@
+<svg width="360" height="640" viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="360" height="640" fill="#F5F5F5"/>
+  
+  <!-- App Bar -->
+  <rect width="360" height="56" fill="#6200EA"/>
+  <text x="16" y="36" fill="white" font-family="Roboto, sans-serif" font-size="20" font-weight="500">Light Novel Reader</text>
+  
+  <!-- Novel Cards -->
+  <!-- Novel 1 -->
+  <rect x="8" y="64" width="344" height="88" rx="4" fill="white" filter="url(#cardShadow)"/>
+  <text x="16" y="88" font-family="Roboto, sans-serif" font-size="16" font-weight="500" fill="#212121">Re:Zero - Starting Life in Another World</text>
+  <text x="16" y="108" font-family="Roboto, sans-serif" font-size="14" fill="#757575">Ch. 142/200</text>
+  <text x="16" y="128" font-family="Roboto, sans-serif" font-size="12" fill="#9E9E9E">Last read: 2 hours ago</text>
+  
+  <!-- Novel 2 - Long pressed with highlight -->
+  <rect x="8" y="160" width="344" height="88" rx="4" fill="white" filter="url(#selectedShadow)"/>
+  <rect x="8" y="160" width="344" height="88" rx="4" fill="#6200EA" opacity="0.08"/>
+  <text x="16" y="184" font-family="Roboto, sans-serif" font-size="16" font-weight="500" fill="#212121">That Time I Got Reincarnated as a Slime</text>
+  <text x="16" y="204" font-family="Roboto, sans-serif" font-size="14" fill="#757575">Ch. 245/350</text>
+  <text x="16" y="224" font-family="Roboto, sans-serif" font-size="12" fill="#9E9E9E">Last read: Yesterday</text>
+  
+  <!-- Popup Menu -->
+  <rect x="60" y="120" width="240" height="220" rx="4" fill="white" filter="url(#menuShadow)"/>
+  
+  <!-- Menu Items -->
+  <g id="menuItem1">
+    <rect x="60" y="120" width="240" height="44" fill="white"/>
+    <text x="76" y="146" font-family="Roboto, sans-serif" font-size="14" fill="#212121">Mark as Completed</text>
+  </g>
+  
+  <g id="menuItem2">
+    <rect x="60" y="164" width="240" height="44" fill="white"/>
+    <text x="76" y="190" font-family="Roboto, sans-serif" font-size="14" fill="#212121">Move to Dropped</text>
+  </g>
+  
+  <g id="menuItem3">
+    <rect x="60" y="208" width="240" height="44" fill="white"/>
+    <text x="76" y="234" font-family="Roboto, sans-serif" font-size="14" fill="#212121">Move to Plan to Read</text>
+  </g>
+  
+  <g id="menuItem4">
+    <rect x="60" y="252" width="240" height="44" fill="white"/>
+    <text x="76" y="278" font-family="Roboto, sans-serif" font-size="14" fill="#212121">View Details</text>
+  </g>
+  
+  <g id="menuItem5">
+    <rect x="60" y="296" width="240" height="44" fill="white"/>
+    <text x="76" y="322" font-family="Roboto, sans-serif" font-size="14" fill="#D32F2F">Delete Novel</text>
+  </g>
+  
+  <!-- Novel 3 -->
+  <rect x="8" y="256" width="344" height="88" rx="4" fill="white" filter="url(#cardShadow)"/>
+  <text x="16" y="280" font-family="Roboto, sans-serif" font-size="16" font-weight="500" fill="#212121">Overlord</text>
+  <text x="16" y="300" font-family="Roboto, sans-serif" font-size="14" fill="#757575">Ch. 89/150</text>
+  <text x="16" y="320" font-family="Roboto, sans-serif" font-size="12" fill="#9E9E9E">Last read: 3 days ago</text>
+  
+  <!-- Novel 4 -->
+  <rect x="8" y="352" width="344" height="88" rx="4" fill="white" filter="url(#cardShadow)"/>
+  <text x="16" y="376" font-family="Roboto, sans-serif" font-size="16" font-weight="500" fill="#212121">Sword Art Online</text>
+  <text x="16" y="396" font-family="Roboto, sans-serif" font-size="14" fill="#757575">Ch. 310/400</text>
+  <text x="16" y="416" font-family="Roboto, sans-serif" font-size="12" fill="#9E9E9E">Last read: 1 week ago</text>
+  
+  <!-- Novel 5 -->
+  <rect x="8" y="448" width="344" height="88" rx="4" fill="white" filter="url(#cardShadow)"/>
+  <text x="16" y="472" font-family="Roboto, sans-serif" font-size="16" font-weight="500" fill="#212121">No Game No Life</text>
+  <text x="16" y="492" font-family="Roboto, sans-serif" font-size="14" fill="#757575">Ch. 78/120</text>
+  <text x="16" y="512" font-family="Roboto, sans-serif" font-size="12" fill="#9E9E9E">Last read: 2 weeks ago</text>
+  
+  <!-- Novel 6 -->
+  <rect x="8" y="544" width="344" height="88" rx="4" fill="white" filter="url(#cardShadow)"/>
+  <text x="16" y="568" font-family="Roboto, sans-serif" font-size="16" font-weight="500" fill="#212121">Konosuba</text>
+  <text x="16" y="588" font-family="Roboto, sans-serif" font-size="14" fill="#757575">Ch. 156/180</text>
+  <text x="16" y="608" font-family="Roboto, sans-serif" font-size="12" fill="#9E9E9E">Last read: 3 weeks ago</text>
+  
+  <!-- Shadow filters -->
+  <defs>
+    <filter id="cardShadow">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.2"/>
+    </filter>
+    
+    <filter id="selectedShadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.3"/>
+    </filter>
+    
+    <filter id="menuShadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+</svg>
