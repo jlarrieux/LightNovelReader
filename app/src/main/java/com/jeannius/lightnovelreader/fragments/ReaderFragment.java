@@ -29,6 +29,8 @@ import com.jeannius.lightnovelreader.JeanniusLogger;
 import com.jeannius.lightnovelreader.R;
 import com.jeannius.lightnovelreader.TtsUtteranceListener;
 import com.jeannius.lightnovelreader.URLHandler;
+import com.jeannius.lightnovelreader.database.NovelDatabaseHelper;
+import com.jeannius.lightnovelreader.model.Novel;
 import com.jeannius.lightnovelreader.webparser.WebParserResponse;
 
 import java.net.URL;
@@ -264,8 +266,69 @@ public class ReaderFragment extends Fragment {
     }
     
     private void saveTitleCurrentLink(String titleAndHost, String currentLink) {
+        // Save to old format for compatibility
         novelMap.put(titleAndHost, currentLink);
         saveLocally(novelMap, NOVEL_MAP_FILE_NAME, getContext());
+        
+        // Save to database
+        NovelDatabaseHelper dbHelper = new NovelDatabaseHelper(getContext());
+        Novel novel = dbHelper.getNovelByUrl(currentLink);
+        if (novel == null) {
+            novel = new Novel(titleAndHost, currentLink);
+        }
+        novel.setLastReadDate(System.currentTimeMillis());
+        
+        // Extract chapter number from title if possible
+        String chapter = extractChapterFromTitle(titleAndHost);
+        if (chapter != null) {
+            novel.setCurrentChapter(chapter);
+        }
+        
+        dbHelper.insertOrUpdateNovel(novel);
+        dbHelper.close();
+    }
+    
+    private String extractChapterFromTitle(String title) {
+        // Try to extract chapter number from title
+        // Common patterns: "Chapter 123", "Ch. 123", "Chapter 123:", etc.
+        String lowerTitle = title.toLowerCase();
+        int chapterIndex = lowerTitle.indexOf("chapter");
+        if (chapterIndex == -1) {
+            chapterIndex = lowerTitle.indexOf("ch.");
+        }
+        if (chapterIndex == -1) {
+            chapterIndex = lowerTitle.indexOf("ch ");
+        }
+        
+        if (chapterIndex != -1) {
+            // Extract the chapter part
+            String afterChapter = title.substring(chapterIndex);
+            // Find first digit
+            int digitStart = -1;
+            for (int i = 0; i < afterChapter.length(); i++) {
+                if (Character.isDigit(afterChapter.charAt(i))) {
+                    digitStart = i;
+                    break;
+                }
+            }
+            
+            if (digitStart != -1) {
+                // Find end of digits
+                int digitEnd = digitStart;
+                while (digitEnd < afterChapter.length() && 
+                       (Character.isDigit(afterChapter.charAt(digitEnd)) || 
+                        afterChapter.charAt(digitEnd) == '.' ||
+                        afterChapter.charAt(digitEnd) == '-')) {
+                    digitEnd++;
+                }
+                
+                if (digitEnd > digitStart) {
+                    return "Chapter " + afterChapter.substring(digitStart, digitEnd);
+                }
+            }
+        }
+        
+        return null;
     }
     
     @Override

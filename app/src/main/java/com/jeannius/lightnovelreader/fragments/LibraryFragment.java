@@ -2,94 +2,83 @@ package com.jeannius.lightnovelreader.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.jeannius.lightnovelreader.DialogFragment.NovelDialogFragment;
-import com.jeannius.lightnovelreader.Interface.NovelListActionListener;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.jeannius.lightnovelreader.MainActivityWithBottomNav;
 import com.jeannius.lightnovelreader.R;
-import com.jeannius.lightnovelreader.SaverLoaderUtils;
+import com.jeannius.lightnovelreader.adapter.LibraryPagerAdapter;
+import com.jeannius.lightnovelreader.adapter.NovelAdapter;
+import com.jeannius.lightnovelreader.database.NovelDatabaseHelper;
+import com.jeannius.lightnovelreader.model.Novel;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
-public class LibraryFragment extends Fragment implements NovelListActionListener {
+public class LibraryFragment extends Fragment {
     
-    private RecyclerView recyclerView;
-    private TextView emptyTextView;
-    private static final String NOVEL_MAP_FILE_NAME = "novelMapFileName";
+    private ViewPager2 viewPager;
+    private TabLayout tabLayout;
+    private NovelDatabaseHelper dbHelper;
     
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_library, container, false);
+        View view = inflater.inflate(R.layout.fragment_library_with_tabs, container, false);
         
-        recyclerView = view.findViewById(R.id.recycler_view);
-        emptyTextView = view.findViewById(R.id.empty_text_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        viewPager = view.findViewById(R.id.view_pager);
+        tabLayout = view.findViewById(R.id.tab_layout);
         
-        // For now, show the dialog with the novel list
-        view.findViewById(R.id.empty_text_view).setOnClickListener(v -> showNovels());
+        dbHelper = new NovelDatabaseHelper(getContext());
         
-        loadNovels();
+        setupViewPager();
         
         return view;
     }
     
-    @Override
-    public void onResume() {
-        super.onResume();
-        loadNovels();
-    }
-    
-    private void loadNovels() {
-        HashMap<String, String> novelMap = SaverLoaderUtils.loadNovelMapFromLocal(NOVEL_MAP_FILE_NAME, getContext());
+    private void setupViewPager() {
+        LibraryPagerAdapter pagerAdapter = new LibraryPagerAdapter(this);
+        viewPager.setAdapter(pagerAdapter);
         
-        if (novelMap.isEmpty()) {
-            // Show empty state
-            recyclerView.setVisibility(View.GONE);
-            emptyTextView.setVisibility(View.VISIBLE);
-        } else {
-            // For now, just show text indicating there are novels
-            recyclerView.setVisibility(View.GONE);
-            emptyTextView.setVisibility(View.VISIBLE);
-            emptyTextView.setText("You have " + novelMap.size() + " novel(s) saved.\n\nTap here to view them.");
-            emptyTextView.setOnClickListener(v -> showNovels());
-        }
-    }
-    
-    private void showNovels() {
-        DialogFragment dialogFragment = new NovelDialogFragment(NOVEL_MAP_FILE_NAME, this);
-        dialogFragment.show(getParentFragmentManager(), "NovelDialog");
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            switch (position) {
+                case 0:
+                    tab.setText("Reading");
+                    break;
+                case 1:
+                    tab.setText("Completed");
+                    break;
+                case 2:
+                    tab.setText("Dropped");
+                    break;
+                case 3:
+                    tab.setText("Plan to Read");
+                    break;
+                case 4:
+                    tab.setText("All");
+                    break;
+            }
+        }).attach();
     }
     
     @Override
-    public void onNovelSelected(String url, String chapterPattern) {
-        // Navigate to reader fragment with the selected novel
-        ReaderFragment readerFragment = new ReaderFragment();
-        Bundle args = new Bundle();
-        args.putString("url", url);
-        readerFragment.setArguments(args);
-        
-        getParentFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, readerFragment)
-                .addToBackStack(null)
-                .commit();
-        
-        // Update bottom navigation to show Reader tab as selected
-        if (getActivity() instanceof MainActivityWithBottomNav) {
-            ((MainActivityWithBottomNav) getActivity()).navigateToReader();
+    public void onDestroy() {
+        if (dbHelper != null) {
+            dbHelper.close();
         }
+        super.onDestroy();
     }
 }
