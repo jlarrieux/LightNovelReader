@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.jeannius.lightnovelreader.database.DatabaseMigrationHelper;
 import com.jeannius.lightnovelreader.databinding.ActivityMainWithBottomNavBinding;
 import com.jeannius.lightnovelreader.fragments.LibraryFragment;
 import com.jeannius.lightnovelreader.fragments.ParsersFragment;
@@ -25,9 +24,6 @@ public class MainActivityWithBottomNav extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // Perform database migration if needed
-        DatabaseMigrationHelper.migrateToDatabase(this);
         
         binding = ActivityMainWithBottomNavBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

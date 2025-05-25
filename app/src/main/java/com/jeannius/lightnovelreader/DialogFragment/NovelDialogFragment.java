@@ -13,7 +13,8 @@ import androidx.fragment.app.DialogFragment;
 import com.jeannius.lightnovelreader.Interface.NovelListActionListener;
 import com.jeannius.lightnovelreader.JeanniusLogger;
 import com.jeannius.lightnovelreader.SaverLoaderUtils;
-import com.jeannius.lightnovelreader.CustomAdapter;
+
+import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,7 +42,7 @@ public class NovelDialogFragment extends DialogFragment {
         if (!novelMap.isEmpty()) {
             List<String> items = new ArrayList<>(novelMap.keySet());
             Collections.sort(items);
-            CustomAdapter adapter = new CustomAdapter(getContext(), items);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, items);
             ListView listView = new ListView(getContext());
             listView.setAdapter(adapter);
             builder.setView(listView);

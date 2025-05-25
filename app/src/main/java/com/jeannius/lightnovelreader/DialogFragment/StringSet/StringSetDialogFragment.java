@@ -11,9 +11,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import com.jeannius.lightnovelreader.CustomAdapter;
 import com.jeannius.lightnovelreader.JeanniusLogger;
 import com.jeannius.lightnovelreader.SaverLoaderUtils;
+
+import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,7 @@ public abstract class StringSetDialogFragment extends DialogFragment {
         if(!stringSet.isEmpty()){
             items = new ArrayList<>(stringSet);
         }
-        CustomAdapter adapter = new CustomAdapter(getContext(), items);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, items);
         ListView listView = new ListView(getContext());
         listView.setAdapter(adapter);
         builder.setView(listView);
@@ -61,7 +62,7 @@ public abstract class StringSetDialogFragment extends DialogFragment {
     private void setPositiveButton(AlertDialog.Builder builder,
                                    Set<String> stringSet,
                                    List<String> items,
-                                   CustomAdapter adapter){
+                                   ArrayAdapter<String> adapter){
         builder.setPositiveButton("Add", (dialog, which) -> {
             Context context = requireContext();
             EditText input = new EditText(context);

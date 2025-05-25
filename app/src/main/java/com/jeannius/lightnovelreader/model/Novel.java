@@ -23,11 +23,15 @@ public class Novel {
     private String url;
     private String currentChapter;
     private long lastReadDate;
+    private long dateAdded;
     private Status status;
+    private String personalNotes;
     
     public Novel() {
         this.status = Status.READING; // Default status
         this.lastReadDate = System.currentTimeMillis();
+        this.dateAdded = System.currentTimeMillis();
+        this.personalNotes = "";
     }
     
     public Novel(String title, String url) {
@@ -87,5 +91,21 @@ public class Novel {
     
     public String getStatusDisplayName() {
         return status.getDisplayName();
+    }
+    
+    public long getDateAdded() {
+        return dateAdded;
+    }
+    
+    public void setDateAdded(long dateAdded) {
+        this.dateAdded = dateAdded;
+    }
+    
+    public String getPersonalNotes() {
+        return personalNotes;
+    }
+    
+    public void setPersonalNotes(String personalNotes) {
+        this.personalNotes = personalNotes;
     }
 }

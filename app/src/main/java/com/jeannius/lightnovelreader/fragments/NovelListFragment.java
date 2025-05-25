@@ -5,12 +5,14 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,8 +22,11 @@ import com.jeannius.lightnovelreader.R;
 import com.jeannius.lightnovelreader.adapter.NovelAdapter;
 import com.jeannius.lightnovelreader.database.NovelDatabaseHelper;
 import com.jeannius.lightnovelreader.model.Novel;
+import com.jeannius.lightnovelreader.utils.SortPreferences;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelClickListener, NovelAdapter.OnNovelLongClickListener {
@@ -30,9 +35,12 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
     
     private RecyclerView recyclerView;
     private TextView emptyTextView;
+    private ImageButton sortButton;
     private NovelAdapter adapter;
     private NovelDatabaseHelper dbHelper;
     private Novel.Status filterStatus;
+    private SortPreferences sortPreferences;
+    private SortPreferences.SortType currentSortType;
     
     public static NovelListFragment newInstance(@Nullable Novel.Status status) {
         NovelListFragment fragment = new NovelListFragment();
@@ -54,6 +62,7 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
         }
         
         dbHelper = new NovelDatabaseHelper(getContext());
+        sortPreferences = new SortPreferences(getContext());
     }
     
     @Nullable
@@ -63,6 +72,7 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
         
         recyclerView = view.findViewById(R.id.recycler_view);
         emptyTextView = view.findViewById(R.id.empty_text_view);
+        sortButton = view.findViewById(R.id.sort_button);
         
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         
@@ -70,6 +80,13 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
         adapter.setOnNovelClickListener(this);
         adapter.setOnNovelLongClickListener(this);
         recyclerView.setAdapter(adapter);
+        
+        // Load saved sort preference
+        String tabKey = filterStatus != null ? filterStatus.name() : "ALL";
+        currentSortType = sortPreferences.getSortType(tabKey);
+        
+        // Setup sort button
+        sortButton.setOnClickListener(v -> showSortMenu(v));
         
         return view;
     }
@@ -100,6 +117,7 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyTextView.setVisibility(View.GONE);
+            sortNovels(novels);
             adapter.updateNovels(novels);
         }
     }
@@ -112,7 +130,8 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
         args.putString("url", novel.getUrl());
         readerFragment.setArguments(args);
         
-        getParentFragmentManager().beginTransaction()
+        // Use the activity's fragment manager instead of parent fragment manager
+        requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, readerFragment)
                 .addToBackStack(null)
                 .commit();
@@ -183,9 +202,65 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
     }
     
     private void deleteNovel(Novel novel) {
-        dbHelper.deleteNovel(novel.getUrl());
-        Toast.makeText(getContext(), "Novel deleted", Toast.LENGTH_SHORT).show();
-        loadNovels(); // Refresh the list
+        new AlertDialog.Builder(getContext())
+                .setTitle("Delete Novel")
+                .setMessage("Are you sure you want to delete \"" + novel.getTitle() + "\"?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    dbHelper.deleteNovel(novel.getUrl());
+                    Toast.makeText(getContext(), "Novel deleted", Toast.LENGTH_SHORT).show();
+                    loadNovels(); // Refresh the list
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    
+    private void showSortMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(getContext(), anchor);
+        popup.getMenuInflater().inflate(R.menu.menu_sort_options, popup.getMenu());
+        
+        popup.setOnMenuItemClickListener(item -> {
+            SortPreferences.SortType newSortType = null;
+            int itemId = item.getItemId();
+            
+            if (itemId == R.id.sort_alphabetical_asc) {
+                newSortType = SortPreferences.SortType.ALPHABETICAL_ASC;
+            } else if (itemId == R.id.sort_alphabetical_desc) {
+                newSortType = SortPreferences.SortType.ALPHABETICAL_DESC;
+            } else if (itemId == R.id.sort_date_added_newest) {
+                newSortType = SortPreferences.SortType.DATE_ADDED_NEWEST;
+            } else if (itemId == R.id.sort_date_added_oldest) {
+                newSortType = SortPreferences.SortType.DATE_ADDED_OLDEST;
+            }
+            
+            if (newSortType != null && newSortType != currentSortType) {
+                currentSortType = newSortType;
+                String tabKey = filterStatus != null ? filterStatus.name() : "ALL";
+                sortPreferences.saveSortType(tabKey, currentSortType);
+                loadNovels(); // Reload with new sort
+                Toast.makeText(getContext(), "Sorted by " + currentSortType.getDisplayName(), Toast.LENGTH_SHORT).show();
+            }
+            
+            return true;
+        });
+        
+        popup.show();
+    }
+    
+    private void sortNovels(List<Novel> novels) {
+        switch (currentSortType) {
+            case ALPHABETICAL_ASC:
+                Collections.sort(novels, (a, b) -> a.getTitle().compareToIgnoreCase(b.getTitle()));
+                break;
+            case ALPHABETICAL_DESC:
+                Collections.sort(novels, (a, b) -> b.getTitle().compareToIgnoreCase(a.getTitle()));
+                break;
+            case DATE_ADDED_NEWEST:
+                Collections.sort(novels, (a, b) -> Long.compare(b.getDateAdded(), a.getDateAdded()));
+                break;
+            case DATE_ADDED_OLDEST:
+                Collections.sort(novels, (a, b) -> Long.compare(a.getDateAdded(), b.getDateAdded()));
+                break;
+        }
     }
     
     @Override

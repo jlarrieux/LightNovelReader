@@ -55,6 +55,9 @@ public class ReaderFragment extends Fragment {
     private Button speakButton;
     private Button nextButton;
     private Button previousButton;
+    private Button toggleNotesButton;
+    private EditText personalNotesEditText;
+    private Button saveNotesButton;
     
     private String currentLink = "";
     private String nextLink = "";
@@ -69,10 +72,14 @@ public class ReaderFragment extends Fragment {
     private Set<String> blockedStringsSet = new HashSet<>();
     
     private ActivityResultLauncher<Intent> startForResult;
+    private NovelDatabaseHelper databaseHelper;
+    private Novel currentNovel;
     
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        databaseHelper = new NovelDatabaseHelper(getContext());
         
         startForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
@@ -97,7 +104,8 @@ public class ReaderFragment extends Fragment {
         if (args != null && args.containsKey("url")) {
             String url = args.getString("url");
             urlEditText.setText(url);
-            getTextFromWeb();
+            // Don't automatically start reading, just load the content
+            loadNovelContent();
         }
         
         return view;
@@ -109,6 +117,9 @@ public class ReaderFragment extends Fragment {
         speakButton = view.findViewById(R.id.button);
         nextButton = view.findViewById(R.id.next);
         previousButton = view.findViewById(R.id.previous);
+        toggleNotesButton = view.findViewById(R.id.toggle_notes);
+        personalNotesEditText = view.findViewById(R.id.personal_notes);
+        saveNotesButton = view.findViewById(R.id.save_notes);
     }
     
     private void initializeTts() {
@@ -129,7 +140,13 @@ public class ReaderFragment extends Fragment {
         speakButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getTextFromWeb();
+                if (tempText != null && tempText.length() > 0) {
+                    // If content is already loaded, just launch TTS
+                    launchTtsApp();
+                } else {
+                    // Load content and then launch TTS
+                    getTextFromWeb();
+                }
             }
         });
         
@@ -146,6 +163,20 @@ public class ReaderFragment extends Fragment {
                 executePrevious();
             }
         });
+        
+        toggleNotesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleNotesSection();
+            }
+        });
+        
+        saveNotesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                savePersonalNotes();
+            }
+        });
     }
     
     private void loadSavedData() {
@@ -159,6 +190,12 @@ public class ReaderFragment extends Fragment {
     }
     
     private void getTextFromWeb() {
+        loadNovelContent();
+        // After loading content, launch TTS app
+        launchTtsApp();
+    }
+    
+    private void loadNovelContent() {
         String url = urlEditText.getText().toString();
         if (url.isEmpty()) {
             toastUser("URL cannot be empty");
@@ -203,25 +240,13 @@ public class ReaderFragment extends Fragment {
                     JeanniusLogger.log("Jeannius title not empty: " + titleAndHost);
                     JeanniusLogger.log("Jeannius saving: " + currentLink);
                     saveTitleCurrentLink(titleAndHost, currentLink);
+                    loadNotesForCurrentNovel(currentLink);
                 } else {
                     JeanniusLogger.log("jeannius!!! title is empty");
                 }
                 
                 tempText = webParserResponse.text;
                 fullTextEditText.setText(tempText.toString());
-                
-                Intent callIntent = new Intent();
-                callIntent.setPackage("com.hyperionics.avar");
-                callIntent.setAction(Intent.ACTION_SEND);
-                callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-                callIntent.putExtra(Intent.EXTRA_TEXT, tempText.toString());
-                callIntent.setType("text/plain");
-                
-                try {
-                    startForResult.launch(callIntent, ActivityOptionsCompat.makeTaskLaunchBehind());
-                } catch (ActivityNotFoundException e) {
-                    toastUser(e.getMessage());
-                }
             });
             
         }).exceptionally(ex -> {
@@ -230,6 +255,26 @@ public class ReaderFragment extends Fragment {
             });
             return null;
         });
+    }
+    
+    private void launchTtsApp() {
+        if (tempText == null || tempText.length() == 0) {
+            toastUser("No text to read");
+            return;
+        }
+        
+        Intent callIntent = new Intent();
+        callIntent.setPackage("com.hyperionics.avar");
+        callIntent.setAction(Intent.ACTION_SEND);
+        callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        callIntent.putExtra(Intent.EXTRA_TEXT, tempText.toString());
+        callIntent.setType("text/plain");
+        
+        try {
+            startForResult.launch(callIntent, ActivityOptionsCompat.makeTaskLaunchBehind());
+        } catch (ActivityNotFoundException e) {
+            toastUser(e.getMessage());
+        }
     }
     
     private void toastUser(String message) {
@@ -285,6 +330,7 @@ public class ReaderFragment extends Fragment {
         }
         
         dbHelper.insertOrUpdateNovel(novel);
+        currentNovel = novel;
         dbHelper.close();
     }
     
@@ -329,6 +375,42 @@ public class ReaderFragment extends Fragment {
         }
         
         return null;
+    }
+    
+    private void toggleNotesSection() {
+        if (personalNotesEditText.getVisibility() == View.GONE) {
+            personalNotesEditText.setVisibility(View.VISIBLE);
+            saveNotesButton.setVisibility(View.VISIBLE);
+            toggleNotesButton.setText("Hide Notes");
+        } else {
+            personalNotesEditText.setVisibility(View.GONE);
+            saveNotesButton.setVisibility(View.GONE);
+            toggleNotesButton.setText("Personal Notes");
+        }
+    }
+    
+    private void loadNotesForCurrentNovel(String url) {
+        Novel novel = databaseHelper.getNovelByUrl(url);
+        if (novel != null) {
+            currentNovel = novel;
+            String notes = novel.getPersonalNotes();
+            if (notes != null && !notes.isEmpty()) {
+                personalNotesEditText.setText(notes);
+            } else {
+                personalNotesEditText.setText("");
+            }
+        }
+    }
+    
+    private void savePersonalNotes() {
+        if (currentNovel != null) {
+            String notes = personalNotesEditText.getText().toString();
+            databaseHelper.updatePersonalNotes(currentNovel.getUrl(), notes);
+            currentNovel.setPersonalNotes(notes);
+            Toast.makeText(getContext(), "Notes saved", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "Please load a novel first", Toast.LENGTH_SHORT).show();
+        }
     }
     
     @Override

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/sort_alphabetical_asc"
+        android:title="Title (A-Z)" />
+    <item
+        android:id="@+id/sort_alphabetical_desc"
+        android:title="Title (Z-A)" />
+    <item
+        android:id="@+id/sort_date_added_newest"
+        android:title="Date Added (Newest First)" />
+    <item
+        android:id="@+id/sort_date_added_oldest"
+        android:title="Date Added (Oldest First)" />
+</menu>

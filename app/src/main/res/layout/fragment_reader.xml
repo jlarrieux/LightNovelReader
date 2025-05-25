@@ -57,6 +57,46 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/notes_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginBottom="5dp">
+
+        <Button
+            android:id="@+id/toggle_notes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Personal Notes"
+            android:textSize="14sp"
+            style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+        <EditText
+            android:id="@+id/personal_notes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Add your personal notes here..."
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:maxLines="6"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/save_notes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="Save Notes"
+            android:textSize="12sp"
+            android:visibility="gone"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+    </LinearLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
