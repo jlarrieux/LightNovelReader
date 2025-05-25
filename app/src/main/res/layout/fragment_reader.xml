@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".fragments.ReaderFragment">
+
+    <EditText
+        android:id="@+id/url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_marginBottom="-20dp"
+        android:editable="true"
+        android:ems="10"
+        android:gravity="left"
+        android:hint="Input url"
+        android:inputType="textUri|text"
+        android:minHeight="48dp"
+        android:text="https://lightnovelreader.me/chrysalis/chapter-1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-3dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/previous"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:text="PREVIOUS"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:width="@android:dimen/app_icon_size"
+            android:maxWidth="@android:dimen/app_icon_size"
+            android:minWidth="@dimen/fab_margin"
+            android:text="Read @ loud"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/next"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:text="NEXT"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/fab_margin"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/fullText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:editable="true"
+                android:ems="10"
+                android:gravity="start|top"
+                android:inputType="textMultiLine"
+                android:minHeight="@android:dimen/thumbnail_width"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

@@ -27,7 +27,8 @@ public class SaverLoaderUtils {
                  ObjectInputStream ois =  new ObjectInputStream(fis)) {
                 return  (HashMap<String, String>) ois.readObject();
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                // File doesn't exist yet - this is normal for first time use
+                return new HashMap<>();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
@@ -44,7 +45,8 @@ public class SaverLoaderUtils {
                  ObjectInputStream ois =  new ObjectInputStream(fis)) {
                 return  (Set<String>) ois.readObject();
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                // File doesn't exist yet - this is normal for first time use
+                return new HashSet<>();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
@@ -69,6 +71,9 @@ public class SaverLoaderUtils {
                 JeanniusLogger.log(stringBuffer.toString());
                 return stringBuffer.toString();
 
+            } catch (FileNotFoundException e) {
+                // File doesn't exist yet - this is normal for first time use
+                return "";
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }

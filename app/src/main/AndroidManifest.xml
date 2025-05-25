@@ -17,7 +17,7 @@
         android:theme="@style/Theme.LightNovelReader"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".MainActivityWithBottomNav"
             android:launchMode="singleInstance"
             android:exported="true"
             android:usesCleartextTraffic="true"

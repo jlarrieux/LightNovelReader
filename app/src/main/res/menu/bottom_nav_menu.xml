@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_reader"
+        android:icon="@drawable/baseline_play_arrow_24"
+        android:title="Reader" />
+    
+    <item
+        android:id="@+id/navigation_library"
+        android:icon="@drawable/ic_library_24"
+        android:title="Library" />
+    
+    <item
+        android:id="@+id/navigation_parsers"
+        android:icon="@drawable/ic_web_24"
+        android:title="Parsers" />
+    
+    <item
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/ic_settings_24"
+        android:title="Settings" />
+</menu>

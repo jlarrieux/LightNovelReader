@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".fragments.ParsersFragment">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="16dp"
+        android:text="Website Parsers"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="24dp"
+        android:text="Manage which websites are supported for parsing light novels"
+        android:textSize="14sp" />
+
+    <Button
+        android:id="@+id/show_parsers_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Supported Websites"
+        android:textAllCaps="false" />
+
+</LinearLayout>
