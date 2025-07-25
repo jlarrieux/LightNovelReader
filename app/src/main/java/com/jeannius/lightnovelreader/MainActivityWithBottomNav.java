@@ -77,4 +77,8 @@ public class MainActivityWithBottomNav extends AppCompatActivity {
     public void navigateToReader() {
         bottomNavigationView.setSelectedItemId(R.id.navigation_reader);
     }
+    
+    public void navigateToSettings() {
+        bottomNavigationView.setSelectedItemId(R.id.navigation_settings);
+    }
 }

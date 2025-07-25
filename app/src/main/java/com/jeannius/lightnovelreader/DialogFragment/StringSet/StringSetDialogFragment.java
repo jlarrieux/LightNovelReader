@@ -37,7 +37,7 @@ public abstract class StringSetDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState){
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         Set<String> stringSet = SaverLoaderUtils.loadSetFromLocal(FILENAME, getContext());
-        JeanniusLogger.log(FILENAME , stringSet.toString());
+        JeanniusLogger.log(FILENAME , "Loaded " + stringSet.size() + " items");
         builder.setTitle(FILENAME);
         List<String> items = new ArrayList<>();
         if(!stringSet.isEmpty()){

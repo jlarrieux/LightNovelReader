@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -31,6 +33,9 @@ import com.jeannius.lightnovelreader.TtsUtteranceListener;
 import com.jeannius.lightnovelreader.URLHandler;
 import com.jeannius.lightnovelreader.database.NovelDatabaseHelper;
 import com.jeannius.lightnovelreader.model.Novel;
+import com.jeannius.lightnovelreader.utils.CloudBackupManager;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.jeannius.lightnovelreader.webparser.WebParserResponse;
 
 import java.net.URL;
@@ -58,6 +63,8 @@ public class ReaderFragment extends Fragment {
     private Button toggleNotesButton;
     private EditText personalNotesEditText;
     private Button saveNotesButton;
+    private LinearLayout loadingLayout;
+    private TextView loadingText;
     
     private String currentLink = "";
     private String nextLink = "";
@@ -74,17 +81,25 @@ public class ReaderFragment extends Fragment {
     private ActivityResultLauncher<Intent> startForResult;
     private NovelDatabaseHelper databaseHelper;
     private Novel currentNovel;
+    private CloudBackupManager cloudBackupManager;
     
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         databaseHelper = new NovelDatabaseHelper(getContext());
+        cloudBackupManager = new CloudBackupManager(getContext());
+        
+        // Initialize drive service if user is signed in
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
+        if (account != null) {
+            cloudBackupManager.initializeDriveService(account);
+        }
         
         startForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
-                JeanniusLogger.log(result.toString());
+                JeanniusLogger.log("ActivityResult code: " + result.getResultCode());
             }
         });
     }
@@ -120,6 +135,8 @@ public class ReaderFragment extends Fragment {
         toggleNotesButton = view.findViewById(R.id.toggle_notes);
         personalNotesEditText = view.findViewById(R.id.personal_notes);
         saveNotesButton = view.findViewById(R.id.save_notes);
+        loadingLayout = view.findViewById(R.id.loading_layout);
+        loadingText = view.findViewById(R.id.loading_text);
     }
     
     private void initializeTts() {
@@ -140,13 +157,11 @@ public class ReaderFragment extends Fragment {
         speakButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (tempText != null && tempText.length() > 0) {
-                    // If content is already loaded, just launch TTS
-                    launchTtsApp();
-                } else {
-                    // Load content and then launch TTS
-                    getTextFromWeb();
-                }
+                // Clear current text to ensure fresh content is loaded
+                tempText = null;
+                fullTextEditText.setText("");
+                // Load content (TTS will launch automatically after loading)
+                loadNovelContent();
             }
         });
         
@@ -191,8 +206,6 @@ public class ReaderFragment extends Fragment {
     
     private void getTextFromWeb() {
         loadNovelContent();
-        // After loading content, launch TTS app
-        launchTtsApp();
     }
     
     private void loadNovelContent() {
@@ -207,6 +220,11 @@ public class ReaderFragment extends Fragment {
             return;
         }
         
+        // Show loading spinner and hide text
+        loadingLayout.setVisibility(View.VISIBLE);
+        fullTextEditText.setVisibility(View.GONE);
+        loadingText.setText("Loading novel content...");
+        
         freeNovelSynonyms.add("freewebnovel.noveleast.com");
         freeNovelSynonyms.add("freewebnovel.comenovel.com");
         
@@ -214,7 +232,9 @@ public class ReaderFragment extends Fragment {
         future.thenAccept(webParserResponse -> {
             
             getActivity().runOnUiThread(() -> {
-                // update UI with response
+                // Hide loading spinner and show text
+                loadingLayout.setVisibility(View.GONE);
+                fullTextEditText.setVisibility(View.VISIBLE);
                 
                 saveLocally(url, CURRENT_LINK_FILE_NAME, getContext());
                 currentLink = url;
@@ -246,11 +266,21 @@ public class ReaderFragment extends Fragment {
                 }
                 
                 tempText = webParserResponse.text;
-                fullTextEditText.setText(tempText.toString());
+                if (tempText != null && tempText.length() > 0) {
+                    fullTextEditText.setText(tempText.toString());
+                    // Automatically launch TTS after content loads successfully
+                    launchTtsApp();
+                } else {
+                    fullTextEditText.setText("No content found for this URL. Please check the URL or try a different chapter.");
+                }
             });
             
         }).exceptionally(ex -> {
             getActivity().runOnUiThread(() -> {
+                // Hide loading spinner and show error
+                loadingLayout.setVisibility(View.GONE);
+                fullTextEditText.setVisibility(View.VISIBLE);
+                fullTextEditText.setText("Error loading content: " + ex.getMessage());
                 toastUser(ex.getMessage());
             });
             return null;
@@ -259,7 +289,7 @@ public class ReaderFragment extends Fragment {
     
     private void launchTtsApp() {
         if (tempText == null || tempText.length() == 0) {
-            toastUser("No text to read");
+            toastUser("Please wait for content to load, then try again");
             return;
         }
         
@@ -287,7 +317,7 @@ public class ReaderFragment extends Fragment {
         } else {
             urlEditText.setText(nextLink);
             JeanniusLogger.log("nextLink", nextLink);
-            getTextFromWeb();
+            loadNovelContent();
         }
     }
     
@@ -297,7 +327,7 @@ public class ReaderFragment extends Fragment {
         } else {
             urlEditText.setText(previousLink);
             JeanniusLogger.log("previousLink", previousLink);
-            getTextFromWeb();
+            loadNovelContent();
         }
     }
     
@@ -332,6 +362,9 @@ public class ReaderFragment extends Fragment {
         dbHelper.insertOrUpdateNovel(novel);
         currentNovel = novel;
         dbHelper.close();
+        
+        // Backup to cloud after chapter change
+        backupToCloudIfSignedIn();
     }
     
     private String extractChapterFromTitle(String title) {
@@ -413,11 +446,56 @@ public class ReaderFragment extends Fragment {
         }
     }
     
+    private void backupToCloudIfSignedIn() {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
+        if (account != null) {
+            // User is signed in, proceed with backup
+            databaseHelper.backupToCloud(cloudBackupManager, new CloudBackupManager.BackupCallback() {
+                @Override
+                public void onSuccess() {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Auto backup successful", Toast.LENGTH_SHORT).show();
+                    });
+                }
+                
+                @Override
+                public void onError(String error) {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Auto backup failed: " + error, Toast.LENGTH_SHORT).show();
+                    });
+                }
+                
+                @Override
+                public void onProgress(String message) {
+                    // Silent progress for automatic backups
+                }
+            });
+        } else {
+            // User not signed in, prompt to sign in
+            showCloudBackupSignInDialog();
+        }
+    }
+    
+    private void showCloudBackupSignInDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Cloud Backup")
+                .setMessage("Sign in to Google Drive to automatically backup your reading progress to the cloud?")
+                .setPositiveButton("Sign In", (dialog, which) -> {
+                    // Navigate to Settings to sign in
+                    ((com.jeannius.lightnovelreader.MainActivityWithBottomNav) requireActivity()).navigateToSettings();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    
     @Override
     public void onDestroy() {
         if (t1 != null) {
             t1.stop();
             t1.shutdown();
+        }
+        if (cloudBackupManager != null) {
+            cloudBackupManager.shutdown();
         }
         super.onDestroy();
     }

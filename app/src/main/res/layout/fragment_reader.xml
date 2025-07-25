@@ -108,6 +108,33 @@
             android:layout_margin="@dimen/fab_margin"
             android:orientation="vertical">
 
+            <!-- Loading indicator -->
+            <LinearLayout
+                android:id="@+id/loading_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="50dp"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:id="@+id/loading_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp" />
+
+                <TextView
+                    android:id="@+id/loading_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Loading novel content..."
+                    android:textSize="16sp"
+                    android:textColor="@android:color/darker_gray" />
+
+            </LinearLayout>
+
             <EditText
                 android:id="@+id/fullText"
                 android:layout_width="match_parent"

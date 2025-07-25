@@ -68,8 +68,10 @@ public class SaverLoaderUtils {
                 if(line != null) {
                     stringBuffer.append(line);
                 }
-                JeanniusLogger.log(stringBuffer.toString());
-                return stringBuffer.toString();
+                String content = stringBuffer.toString();
+                // Log only length to avoid large string issues
+                JeanniusLogger.log("Loaded content length: " + content.length());
+                return content;
 
             } catch (FileNotFoundException e) {
                 // File doesn't exist yet - this is normal for first time use

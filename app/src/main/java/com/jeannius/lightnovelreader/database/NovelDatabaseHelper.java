@@ -7,7 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.jeannius.lightnovelreader.model.Novel;
+import com.jeannius.lightnovelreader.utils.CloudBackupManager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +17,8 @@ public class NovelDatabaseHelper extends SQLiteOpenHelper {
     
     private static final String DATABASE_NAME = "novels.db";
     private static final int DATABASE_VERSION = 3;
+    
+    private Context context;
     
     // Table name
     private static final String TABLE_NOVELS = "novels";
@@ -43,6 +47,7 @@ public class NovelDatabaseHelper extends SQLiteOpenHelper {
     
     public NovelDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
     
     @Override
@@ -200,5 +205,161 @@ public class NovelDatabaseHelper extends SQLiteOpenHelper {
         }
         
         return novel;
+    }
+    
+    // Cloud backup methods
+    
+    /**
+     * Backs up the database to Google Drive
+     * @param cloudBackupManager The CloudBackupManager instance
+     * @param callback Callback for backup progress and results
+     */
+    public void backupToCloud(CloudBackupManager cloudBackupManager, CloudBackupManager.BackupCallback callback) {
+        // Ensure all data is written to database file
+        SQLiteDatabase db = this.getWritableDatabase();
+        
+        // Handle WAL checkpoint - ensure all changes are written to main database file
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            Cursor cursor = db.rawQuery("PRAGMA wal_checkpoint(FULL)", null);
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        
+        // Close database connections to ensure file consistency
+        db.close();
+        
+        // Get the database file
+        File databaseFile = context.getDatabasePath(DATABASE_NAME);
+        
+        if (!databaseFile.exists()) {
+            callback.onError("Database file not found: " + databaseFile.getAbsolutePath());
+            return;
+        }
+        
+        // Perform the backup
+        cloudBackupManager.backupDatabase(databaseFile, callback);
+    }
+    
+    /**
+     * Restores the database from Google Drive
+     * @param cloudBackupManager The CloudBackupManager instance
+     * @param callback Callback for restore progress and results
+     */
+    public void restoreFromCloud(CloudBackupManager cloudBackupManager, CloudBackupManager.BackupCallback callback) {
+        // Close current database connections
+        close();
+        
+        // Get the database file path
+        File databaseFile = context.getDatabasePath(DATABASE_NAME);
+        
+        // Create backup of current database before restore
+        File backupFile = new File(databaseFile.getParent(), DATABASE_NAME + ".backup");
+        if (databaseFile.exists()) {
+            try {
+                copyFile(databaseFile, backupFile);
+            } catch (Exception e) {
+                callback.onError("Failed to create local backup: " + e.getMessage());
+                return;
+            }
+        }
+        
+        // Restore from cloud
+        cloudBackupManager.restoreDatabase(databaseFile, new CloudBackupManager.BackupCallback() {
+            @Override
+            public void onSuccess() {
+                // Verify database integrity
+                if (verifyDatabaseIntegrity()) {
+                    // Clean up backup file on successful restore
+                    if (backupFile.exists()) {
+                        backupFile.delete();
+                    }
+                    callback.onSuccess();
+                } else {
+                    // Restore failed, revert to backup
+                    try {
+                        if (backupFile.exists()) {
+                            copyFile(backupFile, databaseFile);
+                            backupFile.delete();
+                        }
+                        callback.onError("Restored database is corrupted. Reverted to local backup.");
+                    } catch (Exception e) {
+                        callback.onError("Database corruption detected and failed to revert: " + e.getMessage());
+                    }
+                }
+            }
+            
+            @Override
+            public void onError(String error) {
+                // Restore local backup on error
+                try {
+                    if (backupFile.exists()) {
+                        copyFile(backupFile, databaseFile);
+                        backupFile.delete();
+                    }
+                } catch (Exception e) {
+                    // Log but don't override original error
+                }
+                callback.onError(error);
+            }
+            
+            @Override
+            public void onProgress(String message) {
+                callback.onProgress(message);
+            }
+        });
+    }
+    
+    /**
+     * Checks if a cloud backup exists
+     * @param cloudBackupManager The CloudBackupManager instance
+     * @param callback Callback for backup existence check
+     */
+    public void checkCloudBackupExists(CloudBackupManager cloudBackupManager, CloudBackupManager.BackupExistsCallback callback) {
+        cloudBackupManager.checkBackupExists(callback);
+    }
+    
+    /**
+     * Verifies database integrity after restore
+     * @return true if database is valid, false otherwise
+     */
+    private boolean verifyDatabaseIntegrity() {
+        try {
+            SQLiteDatabase testDb = SQLiteDatabase.openDatabase(
+                context.getDatabasePath(DATABASE_NAME).getAbsolutePath(),
+                null,
+                SQLiteDatabase.OPEN_READONLY
+            );
+            
+            // Try to perform a simple query
+            Cursor cursor = testDb.rawQuery("SELECT COUNT(*) FROM " + TABLE_NOVELS, null);
+            boolean isValid = cursor.moveToFirst();
+            cursor.close();
+            testDb.close();
+            
+            return isValid;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Copies a file from source to destination
+     * @param source Source file
+     * @param destination Destination file
+     * @throws Exception if copy fails
+     */
+    private void copyFile(File source, File destination) throws Exception {
+        java.io.FileInputStream inputStream = new java.io.FileInputStream(source);
+        java.io.FileOutputStream outputStream = new java.io.FileOutputStream(destination);
+        
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
+        }
+        
+        inputStream.close();
+        outputStream.close();
     }
 }

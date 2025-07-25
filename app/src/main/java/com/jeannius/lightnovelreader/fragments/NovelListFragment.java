@@ -22,6 +22,9 @@ import com.jeannius.lightnovelreader.R;
 import com.jeannius.lightnovelreader.adapter.NovelAdapter;
 import com.jeannius.lightnovelreader.database.NovelDatabaseHelper;
 import com.jeannius.lightnovelreader.model.Novel;
+import com.jeannius.lightnovelreader.utils.CloudBackupManager;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.jeannius.lightnovelreader.utils.SortPreferences;
 
 import java.util.ArrayList;
@@ -41,6 +44,7 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
     private Novel.Status filterStatus;
     private SortPreferences sortPreferences;
     private SortPreferences.SortType currentSortType;
+    private CloudBackupManager cloudBackupManager;
     
     public static NovelListFragment newInstance(@Nullable Novel.Status status) {
         NovelListFragment fragment = new NovelListFragment();
@@ -63,6 +67,13 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
         
         dbHelper = new NovelDatabaseHelper(getContext());
         sortPreferences = new SortPreferences(getContext());
+        cloudBackupManager = new CloudBackupManager(getContext());
+        
+        // Initialize drive service if user is signed in
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
+        if (account != null) {
+            cloudBackupManager.initializeDriveService(account);
+        }
     }
     
     @Nullable
@@ -199,6 +210,9 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
         dbHelper.updateNovelStatus(novel.getUrl(), newStatus);
         Toast.makeText(getContext(), "Moved to " + newStatus.getDisplayName(), Toast.LENGTH_SHORT).show();
         loadNovels(); // Refresh the list
+        
+        // Backup to cloud after status change
+        backupToCloudIfSignedIn();
     }
     
     private void deleteNovel(Novel novel) {
@@ -209,6 +223,9 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
                     dbHelper.deleteNovel(novel.getUrl());
                     Toast.makeText(getContext(), "Novel deleted", Toast.LENGTH_SHORT).show();
                     loadNovels(); // Refresh the list
+                    
+                    // Backup to cloud after deletion
+                    backupToCloudIfSignedIn();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -263,10 +280,55 @@ public class NovelListFragment extends Fragment implements NovelAdapter.OnNovelC
         }
     }
     
+    private void backupToCloudIfSignedIn() {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
+        if (account != null) {
+            // User is signed in, proceed with backup
+            dbHelper.backupToCloud(cloudBackupManager, new CloudBackupManager.BackupCallback() {
+                @Override
+                public void onSuccess() {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Auto backup successful", Toast.LENGTH_SHORT).show();
+                    });
+                }
+                
+                @Override
+                public void onError(String error) {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Auto backup failed: " + error, Toast.LENGTH_SHORT).show();
+                    });
+                }
+                
+                @Override
+                public void onProgress(String message) {
+                    // Silent progress for automatic backups
+                }
+            });
+        } else {
+            // User not signed in, prompt to sign in
+            showCloudBackupSignInDialog();
+        }
+    }
+    
+    private void showCloudBackupSignInDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Cloud Backup")
+                .setMessage("Sign in to Google Drive to automatically backup your library changes to the cloud?")
+                .setPositiveButton("Sign In", (dialog, which) -> {
+                    // Navigate to Settings to sign in
+                    ((com.jeannius.lightnovelreader.MainActivityWithBottomNav) requireActivity()).navigateToSettings();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    
     @Override
     public void onDestroy() {
         if (dbHelper != null) {
             dbHelper.close();
+        }
+        if (cloudBackupManager != null) {
+            cloudBackupManager.shutdown();
         }
         super.onDestroy();
     }
